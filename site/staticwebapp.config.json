@@ -1,0 +1,88 @@
+{
+  "routes": [
+    {
+      "route": "/2021/09/10/guide-for-replacing-thermal-paste-on-2017-macbook-pro-15-inch-enhanced.html",
+      "redirect": "/archive/blog/guide-for-replacing-thermal-paste-on-2017-macbook-pro-15-inch-enhanced.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/02/12/chatgpt-wrote-a-blog-post-about-google-bert-for-me.html",
+      "redirect": "/archive/blog/chatgpt-wrote-a-blog-post-about-google-bert-for-me.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/02/18/I-asked-chatgpt-what-it-takes-to-variables-to-behave.html",
+      "redirect": "/archive/blog/i-asked-chatgpt-what-it-takes-to-variables-to-behave.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/02/18/i-asked-chatgpt-what-it-takes-to-variables-to-behave.html",
+      "redirect": "/archive/blog/i-asked-chatgpt-what-it-takes-to-variables-to-behave.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/02/25/I-asked-ChatGPT-to-create-blacklist.html",
+      "redirect": "/archive/blog/i-asked-chatgpt-to-create-blacklist.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/02/25/i-asked-chatgpt-to-create-blacklist.html",
+      "redirect": "/archive/blog/i-asked-chatgpt-to-create-blacklist.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/03/05/everthing-i-know-about-swift.html",
+      "redirect": "/archive/blog/everthing-i-know-about-swift.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/2023/03/30/subsidized-war-over-likes-and-beyond.html",
+      "redirect": "/archive/blog/subsidized-war-over-likes-and-beyond.html",
+      "statusCode": 301
+    },
+    {
+      "route": "/blog*",
+      "redirect": "/archive/blog/",
+      "statusCode": 301
+    },
+    {
+      "route": "/gallery*",
+      "redirect": "/archive/",
+      "statusCode": 301
+    },
+    {
+      "route": "/feed.xml",
+      "redirect": "/archive/blog/",
+      "statusCode": 301
+    },
+    {
+      "route": "/resume",
+      "redirect": "/resume.txt",
+      "statusCode": 301
+    },
+    {
+      "route": "/img/*",
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html"
+    }
+  },
+  "globalHeaders": {
+    "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'self' mailto:; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "X-Frame-Options": "DENY"
+  },
+  "mimeTypes": {
+    ".luau": "text/plain; charset=utf-8",
+    ".md": "text/markdown; charset=utf-8",
+    ".txt": "text/plain; charset=utf-8"
+  }
+}

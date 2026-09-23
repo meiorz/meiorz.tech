@@ -1,0 +1,198 @@
+/*
+ * archive.css: extra styles for the pre-rendered pages under /archive/.
+ *
+ * Linked after /css/term.css, which provides the window, titlebar, chips,
+ * headings, links, focus rings and themes. This file only reads design tokens
+ * term.css defines (--panel --muted --accent --warn --magenta --border
+ * --radius --gap). It adds no custom properties and no colour values, so
+ * light/dark theming works without extra rules. Scoped to body.archive-page.
+ */
+
+/* ---------- layout ---------- */
+
+/* term.css leaves room for the sticky prompt; archive pages have none. */
+.archive-page .screen {
+  padding-bottom: 1.5rem;
+}
+
+/* Keep long-form text at a readable measure inside the terminal window. */
+.archive-page .screen > * {
+  max-width: 78ch;
+}
+
+.archive-page .chips a[aria-current="page"] {
+  font-weight: 700;
+}
+
+.archive-page h1 {
+  margin: 0.5rem 0 0.75rem;
+}
+
+.archive-page h2 {
+  margin-top: 2rem;
+}
+
+/* ---------- "this is an archive" banner and back link ---------- */
+
+.archive-banner {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 1ch;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warn);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.archive-banner strong {
+  color: var(--warn);
+}
+
+.archive-back {
+  margin: 0 0 1.5rem;
+}
+
+/* ---------- a single post ---------- */
+
+.post__header {
+  margin: 0 0 1rem;
+}
+
+.archive-page .post__title {
+  margin-bottom: 0.25rem;
+}
+
+.post__byline {
+  margin: 0;
+  color: var(--muted);
+}
+
+.post__hero {
+  margin: 0 0 1.5rem;
+}
+
+/* width/height attributes on the <img> reserve the aspect ratio (no layout shift). */
+.post__hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.prose p {
+  margin: 0 0 1rem;
+}
+
+.quote {
+  margin: 0 0 1rem;
+  padding: 0.75rem 2ch;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: var(--panel);
+}
+
+.quote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Pasted chatbot output gets its own rail colour, next to its archive note. */
+.quote--ai {
+  border-left-color: var(--magenta);
+}
+
+.post__footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+}
+
+.post__footer p {
+  margin: 0;
+}
+
+/* ---------- archive notes (mark every spot where something was removed) ---------- */
+
+.archive-note {
+  margin: 0 0 1rem;
+  padding-left: 1ch;
+  border-left: 2px dashed var(--border);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.archive-note--inline {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.archive-note__tag {
+  color: var(--warn);
+  font-style: normal;
+}
+
+/* ---------- previous / next post ---------- */
+
+.post-nav {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.post-nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-nav li + li {
+  margin-top: 0.5rem;
+}
+
+.post-nav__dir {
+  color: var(--muted);
+}
+
+/* ---------- listings (ls -l style) ---------- */
+
+.post-list,
+.archive-list {
+  margin: 1rem 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.post-list li,
+.archive-list li {
+  display: grid;
+  grid-template-columns: 11ch minmax(0, 1fr);
+  gap: var(--gap);
+  margin: 0;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed var(--border);
+}
+
+.archive-list li {
+  grid-template-columns: 16ch minmax(0, 1fr);
+}
+
+.post-list time,
+.archive-list__desc {
+  color: var(--muted);
+}
+
+/* Narrow screens: stack the date (or file name) above the title. */
+@media (max-width: 30em) {
+  .post-list li,
+  .archive-list li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+/* ---------- old home page snapshot ---------- */
+
+.snapshot-hero {
+  font-size: 1.125rem;
+}

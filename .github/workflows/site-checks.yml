@@ -1,0 +1,40 @@
+# Fast, dependency-free checks for site/ on every pull request and on main.
+# Both scripts use only Node built-ins; nothing is installed.
+name: Site checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Privacy, CSP, links, budgets, obby
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Check site (privacy, CSP, links, config, budgets)
+        run: node tools/check-site.mjs
+        env:
+          # Optional repo secret with extra terms that must never be published
+          # (see DEPLOY.md). Empty for fork PRs, which is fine.
+          CHECK_SITE_PRIVATE_TERMS: ${{ secrets.CHECK_SITE_PRIVATE_TERMS }}
+
+      - name: Check the obby course is completable
+        if: ${{ !cancelled() }}
+        run: node tools/check-obby.mjs

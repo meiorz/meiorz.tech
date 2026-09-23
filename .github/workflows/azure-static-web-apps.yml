@@ -1,0 +1,105 @@
+# Publishes site/ to Azure Static Web Apps.
+#
+#   push to main        -> production (www.meiorz.tech once the custom domain is set up)
+#   PR opened / updated -> public preview environment; the action comments its URL on the PR
+#   PR closed           -> that preview environment is deleted
+#
+# One-time setup (Azure resource, deployment-token secret, DNS) is in DEPLOY.md.
+name: Deploy to Azure Static Web Apps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    # No path filters on purpose: a filtered-out "closed" event would leave the
+    # preview environment behind.
+    types: [opened, synchronize, reopened, closed]
+    branches: [main]
+  workflow_dispatch:
+
+# Deny everything by default; each job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: swa-${{ github.event.pull_request.number || github.ref }}
+  # A new push to a PR cancels its older preview deploy. Production deploys never cancel.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build_and_deploy_job:
+    name: Check and deploy
+    # Runs that get no Actions secrets would fail, so skip them: PRs from forks
+    # (head repo check) and runs triggered by Dependabot (github.actor check; its
+    # branches live in this repo, so the head repo check alone lets them through).
+    # A person pushing to a Dependabot branch is the actor then, gets secrets, and
+    # deploys normally. Do not switch to pull_request_target to work around this.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.action != 'closed' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest # the deploy action is a Docker action: Linux runners only
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: write # only used to comment the preview URL on the PR
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      # Privacy gate: never publish a site that fails the checks
+      # (forbidden personal data, CSP violations, broken links, budgets).
+      - name: Check site
+        run: node tools/check-site.mjs
+        env:
+          CHECK_SITE_PRIVATE_TERMS: ${{ secrets.CHECK_SITE_PRIVATE_TERMS }}
+
+      - name: Deploy
+        id: builddeploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: upload
+          app_location: site # published as-is; staticwebapp.config.json lives here
+          api_location: "" # no Azure Functions API
+          output_location: "" # must stay empty when the build is skipped
+          # KNOWN ISSUE (Azure/static-web-apps#1803, open since late Aug 2026): some
+          # deploys fail with "Failure during content distribution" while
+          # skip_app_build is set. FALLBACK: delete the next line. site/ has no
+          # package.json or Gemfile, so the Oryx builder logs that it cannot find
+          # build steps and uploads the folder unchanged (tools/check-site.mjs keeps
+          # build manifests out of site/).
+          skip_app_build: true
+          production_branch: main # other branches (e.g. workflow_dispatch) deploy to a preview
+
+      - name: Print URL
+        env:
+          URL: ${{ steps.builddeploy.outputs.static_web_app_url }}
+        run: echo "Deployed to $URL"
+
+  close_pull_request_job:
+    name: Delete preview environment
+    # Skipped only when Dependabot closes its own PR (no secrets then). When a person
+    # merges or closes it, this runs and removes any preview a human push created.
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action == 'closed' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Close pull request
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: close

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="32" height="32" role="img" aria-labelledby="favicon-title">
+  <title id="favicon-title">meiorz.tech: terminal prompt mark</title>
+  <!-- Dark tile with a thin edge so it stays visible on dark tab strips. -->
+  <rect x="0.5" y="0.5" width="15" height="15" rx="3" fill="#0f1115" stroke="#3b4350"/>
+  <!-- ">_" drawn on the 16px pixel grid so it stays sharp at favicon size. -->
+  <g shape-rendering="crispEdges">
+    <g fill="#7ee0a1">
+      <rect x="3" y="4" width="2" height="1"/>
+      <rect x="4" y="5" width="2" height="1"/>
+      <rect x="5" y="6" width="2" height="1"/>
+      <rect x="6" y="7" width="2" height="2"/>
+      <rect x="5" y="9" width="2" height="1"/>
+      <rect x="4" y="10" width="2" height="1"/>
+      <rect x="3" y="11" width="2" height="1"/>
+    </g>
+    <rect x="9" y="10" width="4" height="2" fill="#e6e6e6"/>
+  </g>
+</svg>

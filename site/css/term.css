@@ -1,0 +1,1253 @@
+/*
+ * term.css: the one stylesheet for www.meiorz.tech (home, 404, archive pages).
+ *
+ * Sections
+ *   1. Tokens (light default, dark via OS preference or [data-theme])
+ *   2. Base and typography
+ *   3. Layout: window, titlebar, chips, screen, blocks, footer
+ *   4. Content components: badges, checklist, key/value lists, projects, ascii banner
+ *   5. Terminal: log output, echo, prompt, link buttons, ls listing, help table
+ *   6. Image pane (the web version of a terminal inline image)
+ *   7. Generic pane (used by obby and meii)
+ *   8. Obby hooks
+ *   9. Meii (parody CLI) hooks: accent is --magenta, never orange
+ *  10. Motion (only with prefers-reduced-motion: no-preference and not html.motion-off)
+ *  11. Print
+ *
+ * Contract: no inline styles anywhere (strict CSP), so every visual hook other
+ * modules need is defined here. Colors come only from the tokens below; each
+ * text token meets WCAG AA (4.5:1) on both --bg and --panel in both themes,
+ * and --border and the --t-* tile colors meet 3:1 on --panel. Obby air cells
+ * (.c-air) and the titlebar dots are decorative and exempt from 3:1.
+ */
+
+/* 1. Tokens */
+
+:root {
+  color-scheme: light dark;
+  --bg: #fafaf7;
+  --panel: #f0f0ea;
+  --fg: #1b1f24;
+  --muted: #545c66;
+  --prompt: #11682f;
+  --accent: #0b57a4;
+  --warn: #7a4d00;
+  --error: #b3261e;
+  --magenta: #7b3fc4;
+  --border: #7d858f;
+
+  /* Obby tiles (text color of each cell class) */
+  --t-solid: #4a525c;
+  --t-kill: #c62828;
+  --t-conv: #8a5a00;
+  --t-jump: #7b3fc4;
+  --t-check: #11682f;
+  --t-finish: #0b57a4;
+  --t-player: #000000;
+
+  --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace;
+  --radius: 6px;
+  --gap: 1ch;
+  --prompt-h: 6.5rem; /* space the sticky prompt covers; used for scroll padding */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1115;
+    --panel: #161a20;
+    --fg: #e6e6e6;
+    --muted: #a0a8b3;
+    --prompt: #7ee0a1;
+    --accent: #7cc4ff;
+    --warn: #f2c46d;
+    --error: #ff8f8f;
+    --magenta: #d7a6ff;
+    --border: #6b7480;
+    --t-solid: #b3bcc8;
+    --t-kill: #ff6b6b;
+    --t-conv: #f2c46d;
+    --t-jump: #d7a6ff;
+    --t-check: #7ee0a1;
+    --t-finish: #7cc4ff;
+    --t-player: #ffffff;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1115;
+  --panel: #161a20;
+  --fg: #e6e6e6;
+  --muted: #a0a8b3;
+  --prompt: #7ee0a1;
+  --accent: #7cc4ff;
+  --warn: #f2c46d;
+  --error: #ff8f8f;
+  --magenta: #d7a6ff;
+  --border: #6b7480;
+  --t-solid: #b3bcc8;
+  --t-kill: #ff6b6b;
+  --t-conv: #f2c46d;
+  --t-jump: #d7a6ff;
+  --t-check: #7ee0a1;
+  --t-finish: #7cc4ff;
+  --t-player: #ffffff;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* 2. Base and typography */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 1rem;
+}
+
+html.term-ready {
+  scroll-padding-bottom: var(--prompt-h);
+}
+
+body {
+  margin: 0;
+  background: var(--panel);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 1rem;
+  line-height: 1.55;
+  font-variant-ligatures: none;
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  font-size: 1rem;
+  line-height: 1.3;
+  margin: 0 0 0.5rem;
+}
+
+h1,
+.h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+h2,
+.h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--warn);
+}
+
+h3,
+.h3 {
+  font-weight: 700;
+  color: var(--fg);
+  margin-top: 1rem;
+}
+
+p,
+ul,
+ol,
+dl,
+figure {
+  margin: 0.5rem 0;
+}
+
+ul,
+ol {
+  padding-left: 3ch;
+}
+
+li + li {
+  margin-top: 0.15rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+[tabindex="-1"]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+code {
+  font-family: inherit;
+  color: var(--prompt);
+}
+
+kbd,
+.kbd {
+  font-family: inherit;
+  font-size: 0.875em;
+  padding: 0 0.4ch;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+pre {
+  font-family: inherit;
+  font-variant-ligatures: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* Visually hidden but available to assistive tech (never used for content). */
+.visually-hidden:not(:focus):not(:active) {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+/* Skip links: off-screen until focused. */
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -10rem;
+  z-index: 10;
+  padding: 0.5rem 1ch;
+  background: var(--bg);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.skip:focus {
+  top: 1rem;
+}
+
+/* Controls that only work with JavaScript stay hidden until term.js is ready. */
+html:not(.term-ready) .js-only {
+  display: none;
+}
+
+/* Notes meant only for readers without JavaScript. */
+html.term-ready .nojs {
+  display: none;
+}
+
+/* 3. Layout */
+
+.window {
+  max-width: 92ch;
+  margin: 2rem auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  padding: 0.4rem 1.5ch;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.titlebar__dots {
+  display: inline-flex;
+  gap: 0.6ch;
+  flex: none;
+}
+
+/* Decorative (aria-hidden): fixed colors, not the darkened text tokens. */
+.titlebar__dots i {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+
+.titlebar__dots i:nth-child(2) {
+  background: #febc2e;
+}
+
+.titlebar__dots i:nth-child(3) {
+  background: #28c840;
+}
+
+.titlebar__title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#theme-toggle {
+  flex: none;
+  min-height: 2rem;
+  padding: 0.15rem 1ch;
+  font-size: 0.875rem;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+#theme-toggle:hover {
+  border-color: var(--accent);
+}
+
+/* Section chips: plain in-page links (with or without JS). */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1ch;
+  padding: 0.75rem clamp(16px, 3vw, 2rem);
+  border-bottom: 1px dashed var(--border);
+}
+
+.chips a {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.1rem 1ch;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.chips a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Phones and touch: one row that scrolls sideways, 44px targets. The right
+   edge fades so the row reads as scrollable; the end spacer keeps the last
+   chip clear of the fade. */
+@media (max-width: 40rem), (pointer: coarse) {
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scroll-padding-inline: 2rem;
+    padding-block: 0.5rem;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  }
+
+  .chips::after {
+    content: "";
+    flex: 0 0 1rem;
+  }
+
+  .chips a {
+    min-height: 44px;
+    padding-inline: 1.25ch;
+  }
+}
+
+.screen {
+  display: block;
+  padding: 1.25rem clamp(16px, 3vw, 2rem) 0;
+}
+
+.block {
+  margin: 0 0 2.25rem;
+}
+
+.block > h2 {
+  margin-top: 0.25rem;
+}
+
+/* The command echoed above each static section. */
+.cmd {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+}
+
+.ps1 {
+  color: var(--prompt);
+  font-weight: 700;
+}
+
+.cmd__text {
+  color: var(--fg);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* First screen: the name is the headline; the banner above it is a small logo. */
+#whoami h1 {
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  line-height: 1.15;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.lede {
+  color: var(--fg);
+}
+
+.seeking {
+  display: inline-block;
+  padding: 0.15rem 1ch;
+  border-left: 3px solid var(--prompt);
+  background: var(--panel);
+}
+
+.footer {
+  padding: 1rem clamp(16px, 3vw, 2rem) 1.25rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 2ch;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+}
+
+.footer li + li {
+  margin-top: 0;
+}
+
+.footer p {
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .window {
+    margin: 0;
+    border-width: 0 0 1px;
+    border-radius: 0;
+  }
+
+  .titlebar {
+    border-radius: 0;
+    padding-inline: 16px;
+  }
+}
+
+/* 4. Content components */
+
+.badge {
+  display: inline-block;
+  margin-left: 0.5ch;
+  padding: 0 0.8ch;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.5;
+  vertical-align: 0.1em;
+  white-space: nowrap;
+}
+
+.badge--wip {
+  color: var(--warn);
+}
+
+.badge--live {
+  color: var(--prompt);
+}
+
+.badge--done {
+  color: var(--accent);
+}
+
+.badge--soon {
+  color: var(--muted);
+}
+
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.checklist li {
+  display: flex;
+  gap: 1ch;
+}
+
+.checklist .box {
+  flex: none;
+  color: var(--prompt);
+}
+
+.checklist li.todo .box {
+  color: var(--muted);
+}
+
+.checklist li.done .grade {
+  color: var(--prompt);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Key/value lists (skills, contact). Two columns when there is room. */
+.kv {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.15rem 2ch;
+}
+
+.kv dt {
+  color: var(--muted);
+}
+
+.kv dd {
+  margin: 0 0 0.5rem 2ch;
+  min-width: 0;
+}
+
+@media (min-width: 36rem) {
+  .kv {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .kv dd {
+    margin: 0;
+  }
+}
+
+.project {
+  margin: 1rem 0 1.5rem;
+  padding-left: 1.5ch;
+  border-left: 2px solid var(--border);
+}
+
+.project > h3,
+.project > .h3 {
+  margin-top: 0;
+}
+
+/* The "also in the works" placeholder group: lighter than a real project. */
+.project--wip {
+  border-left-style: dashed;
+}
+
+.meta {
+  color: var(--muted);
+}
+
+/* The block-letter banner: a small, muted, decorative logo (aria-hidden).
+   Its font size shrinks with the viewport so the 44-column art always fits
+   (no horizontal scroll at 320px). */
+.ascii {
+  margin: 0 0 0.5rem;
+}
+
+.ascii pre {
+  margin: 0;
+  font-size: clamp(5px, 1.8vw, 10px);
+  line-height: 1;
+  color: var(--border);
+  overflow: hidden;
+  /* Close the hairline seams some fonts leave between block characters. */
+  text-shadow: 0.4px 0 currentColor, 0 0.4px currentColor;
+}
+
+.ascii figcaption {
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+/* 5. Terminal */
+
+/* Never display:none the log: a live region must be rendered before its
+   first update or screen readers may miss it. */
+#log {
+  margin: 0 0 0.5rem;
+}
+
+/* One printed block of output. */
+.out {
+  margin: 0.15rem 0 0.35rem;
+  min-width: 0;
+}
+
+.out--error {
+  color: var(--error);
+}
+
+.out--muted {
+  color: var(--muted);
+}
+
+.out--accent {
+  color: var(--accent);
+}
+
+.out--ok {
+  color: var(--prompt);
+}
+
+.out pre {
+  margin: 0;
+  white-space: pre;
+  overflow-x: auto;
+  line-height: 1.4;
+}
+
+.out > p:first-child,
+.out > ul:first-child {
+  margin-top: 0;
+}
+
+/* The echoed command line. */
+.echo {
+  margin-top: 0.9rem;
+  white-space: pre-wrap;
+}
+
+/* A clone of a static section printed into the log. */
+.clone {
+  padding: 0.25rem 0 0.25rem 1.5ch;
+  border-left: 2px solid var(--border);
+}
+
+/* Buttons that look like links (inline commands in the output). */
+.link-btn {
+  display: inline;
+  min-height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  cursor: pointer;
+  text-align: start;
+}
+
+.link-btn:hover {
+  text-decoration-thickness: 2px;
+}
+
+.link-btn:disabled {
+  color: var(--muted);
+  cursor: default;
+}
+
+/* "run obby" style buttons. */
+.run {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.25rem 1.5ch;
+  border: 1px solid var(--prompt);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--prompt);
+  cursor: pointer;
+}
+
+.run::before {
+  content: "\25B6\00A0" / "";
+}
+
+.run:hover {
+  background: var(--panel);
+}
+
+/* ls output */
+.ls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 3ch;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ls li + li {
+  margin-top: 0;
+}
+
+.ls .dir {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.ls .file {
+  color: var(--fg);
+}
+
+/* help table */
+.cmds {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 2ch;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.cmds dt {
+  margin-top: 0.35rem;
+}
+
+.cmds dd {
+  margin: 0 0 0 2ch;
+  color: var(--muted);
+}
+
+@media (min-width: 36rem) {
+  .cmds {
+    grid-template-columns: max-content minmax(0, 1fr);
+  }
+
+  .cmds dt {
+    margin-top: 0;
+  }
+
+  .cmds dd {
+    margin: 0;
+  }
+}
+
+.group {
+  margin: 0.5rem 0 0;
+  color: var(--warn);
+  font-weight: 700;
+}
+
+/* man pages: NAME / SYNOPSIS / ... with indented bodies */
+.indent {
+  margin: 0 0 0 4ch;
+}
+
+@media (max-width: 24rem) {
+  .indent {
+    margin-left: 2ch;
+  }
+}
+
+/* The sticky prompt at the bottom of .screen. */
+.prompt {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0 1ch;
+  margin: 0 calc(-1 * clamp(16px, 3vw, 2rem));
+  padding: 0.5rem clamp(16px, 3vw, 2rem) 0.6rem;
+  background: var(--bg);
+  border-top: 1px dashed var(--border);
+}
+
+.prompt:focus-within {
+  border-top-color: var(--accent);
+  border-top-style: solid;
+}
+
+.prompt__label {
+  white-space: nowrap;
+}
+
+#cmd {
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.5ch;
+  font-family: inherit;
+  font-size: max(16px, 1rem);
+  font-variant-ligatures: none;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  caret-color: var(--prompt);
+}
+
+#cmd::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.prompt .hint {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
+  font-size: 0.8125rem;
+}
+
+/* Touch-first devices have no arrow/Tab/Ctrl keys: drop the shell's key hint
+   (term.js marks it .hint--default; a mode's own hint via setHint() stays;
+   the input's placeholder says "type help" instead). */
+@media (pointer: coarse) {
+  .prompt .hint--default {
+    display: none;
+  }
+}
+
+/* 6. Image pane */
+
+.imgpane {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.75rem 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.imgpane__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.5ch;
+  max-width: 256px;
+  padding: 0.3rem 1ch;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.imgpane__name {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+/* Line 1: name + meta. Line 2: a short description, never more than one line. */
+.imgpane__desc {
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imgpane img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+img.pixel,
+.pixel img {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* 7. Generic pane (obby, meii) */
+
+.pane {
+  max-width: 100%;
+  margin: 0.5rem 0 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.pane:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.pane__bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 2ch;
+  padding: 0.3rem 1ch;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.pane__body {
+  padding: 0.5rem 1ch;
+  overflow-x: auto;
+}
+
+.pane__footer {
+  padding: 0.3rem 1ch;
+  border-top: 1px solid var(--border);
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* 8. Obby */
+
+/* The playfield: one <span class="c-*"> per run of same-kind cells. */
+.obby-field {
+  margin: 0;
+  font-size: clamp(11px, 2.6vw, 16px);
+  line-height: 1;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--muted);
+}
+
+/* Inside term.print() the field also matches `.out pre` (line-height 1.4).
+   At line-height 1 the glyph boxes overhang each row a little: that must not
+   count as vertical overflow (it would add a scrollbar). */
+.out pre.obby-field {
+  line-height: 1;
+  overflow-y: hidden;
+}
+
+/* Air is decorative: dimmer than the course, still visible for counting gaps. */
+.c-air {
+  color: var(--border);
+  color: color-mix(in srgb, var(--border) 50%, var(--panel));
+}
+
+.c-solid {
+  color: var(--t-solid);
+}
+
+.c-kill {
+  color: var(--t-kill);
+}
+
+.c-conv {
+  color: var(--t-conv);
+}
+
+.c-jump {
+  color: var(--t-jump);
+}
+
+.c-check {
+  color: var(--t-check);
+}
+
+.c-finish {
+  color: var(--t-finish);
+}
+
+.c-player {
+  color: var(--t-player);
+  font-weight: 700;
+}
+
+.obby-hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 2.5ch;
+  margin: 0 0 0.5rem;
+  color: var(--fg);
+}
+
+/* Glyph key under the field: <p class="hint obby-legend"> with .c-* spans. */
+.obby-legend {
+  margin: 0.5rem 0 0;
+}
+
+.obby-legend [class^="c-"],
+.obby-legend [class*=" c-"] {
+  font-weight: 700;
+}
+
+.obby-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.obby-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.25rem 1ch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 1.125rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.obby-controls button:active,
+.obby-controls button[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 9. Meii (parody CLI) */
+
+/* Rounded panel: drawn with border-radius, not box-drawing characters.
+   Also usable on the prompt: pushMode({ promptClass: 'meii-box', ... }). */
+.meii-box {
+  border: 1px solid var(--magenta);
+  border-radius: 12px;
+  padding: 0.4rem 1.5ch;
+  margin: 0.5rem 0;
+}
+
+.prompt.meii-box {
+  margin: 0;
+  border-top: 1px solid var(--magenta);
+  border-radius: 12px;
+  padding: 0.4rem 1.5ch 0.5rem;
+}
+
+.meii-welcome {
+  color: var(--fg);
+}
+
+.meii-welcome strong,
+.meii-accent {
+  color: var(--magenta);
+}
+
+/* The user's line echoed inside the parody (render your own ">" glyph). */
+.meii-prompt {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+/* "● Tool(args)" line. Wrap the bullet in .meii-dot to color it. */
+.meii-tool {
+  margin-top: 0.5rem;
+  color: var(--fg);
+}
+
+.meii-dot {
+  color: var(--prompt);
+}
+
+/* "⎿ result" line, indented under its tool call. */
+.meii-result {
+  padding-left: 2ch;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.meii-diff-add,
+.meii-diff-del {
+  display: block;
+  min-width: max-content;
+  white-space: pre;
+  padding: 0 1ch;
+}
+
+.meii-diff-add .visually-hidden,
+.meii-diff-del .visually-hidden {
+  user-select: none;
+}
+
+.meii-diff-add {
+  color: var(--prompt);
+  background: color-mix(in srgb, var(--prompt) 10%, transparent);
+}
+
+.meii-diff-del {
+  color: var(--error);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+}
+
+.meii-spinner {
+  color: var(--magenta);
+}
+
+.meii-dim {
+  color: var(--muted);
+}
+
+/* Permission menu: <ol class="meii-menu" role="listbox"> with role="option" items. */
+.meii-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0;
+}
+
+.meii-menu li {
+  display: flex;
+  align-items: center;
+  min-height: 1.75rem;
+  margin: 0;
+  padding: 0 1ch;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Selected option: inverted colors (render your own "❯" marker as text). */
+.meii-menu li[aria-selected="true"] {
+  background: var(--magenta);
+  color: var(--bg);
+}
+
+.meii-menu:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.meii-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 2ch;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* The Shift+Tab mode indicator, inside the hint set with term.setHint(). */
+.hint .meii-mode {
+  color: var(--magenta);
+}
+
+/* Narrow or touch screens: keep the sticky parody hint short (the
+   "not affiliated" part stays). */
+@media (max-width: 30rem), (pointer: coarse) {
+  .meii-footer__more,
+  .meii-keys,
+  .meii-keyhint {
+    display: none;
+  }
+}
+
+.meii-todo {
+  list-style: none;
+  padding-left: 2ch;
+  margin: 0.25rem 0;
+}
+
+.meii-todo li.done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* 10. Motion */
+
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.motion-off) {
+    scroll-behavior: smooth;
+  }
+
+  html:not(.motion-off) .out,
+  html:not(.motion-off) .echo {
+    animation: out-in 0.18s ease-out;
+  }
+
+  /* One short, single-line typing effect on the first echo. The text is in
+     the DOM from the start; only a clip mask animates. */
+  html:not(.motion-off) .typed {
+    display: inline-block;
+    animation: type-in 0.6s steps(6, end) 0.25s both;
+  }
+
+  @keyframes out-in {
+    from {
+      opacity: 0;
+      transform: translateY(3px);
+    }
+  }
+
+  @keyframes type-in {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+}
+
+/* 11. Print */
+
+@media print {
+  /* Same specificity as both dark rules and later in the file, so a dark
+     theme (OS or saved) prints dark-on-white. */
+  :root:not([data-theme="light"]) {
+    color-scheme: light;
+    --bg: #fff;
+    --panel: #fff;
+    --fg: #000;
+    --muted: #444;
+    --prompt: #11682f;
+    --accent: #0b57a4;
+    --warn: #7a4d00;
+    --error: #b3261e;
+    --magenta: #7b3fc4;
+    --border: #777;
+    --t-solid: #4a525c;
+    --t-kill: #c62828;
+    --t-conv: #8a5a00;
+    --t-jump: #7b3fc4;
+    --t-check: #11682f;
+    --t-finish: #0b57a4;
+    --t-player: #000;
+  }
+
+  body,
+  .window {
+    background: #fff;
+    color: #000;
+    border: 0;
+    margin: 0;
+  }
+
+  .chips,
+  .prompt,
+  #log,
+  .js-only,
+  .skip,
+  #theme-toggle {
+    display: none !important;
+  }
+}
