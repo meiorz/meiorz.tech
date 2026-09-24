@@ -14,6 +14,11 @@
  *  10. Motion (only with prefers-reduced-motion: no-preference and not html.motion-off)
  *  11. Print
  *
+ * Palette: VS Code's default themes. Light = Light Modern (UI) + Light+ (syntax
+ * colors); dark = Dark Modern + Dark+. Where a VS Code color is too faint for
+ * text (e.g. its hairline borders, light terminal green), a nearby color from
+ * the same theme stands in.
+ *
  * Contract: no inline styles anywhere (strict CSP), so every visual hook other
  * modules need is defined here. Colors come only from the tokens below; each
  * text token meets WCAG AA (4.5:1) on both --bg and --panel in both themes,
@@ -25,24 +30,24 @@
 
 :root {
   color-scheme: light dark;
-  --bg: #fafaf7;
-  --panel: #f0f0ea;
-  --fg: #1b1f24;
-  --muted: #545c66;
-  --prompt: #11682f;
-  --accent: #0b57a4;
-  --warn: #7a4d00;
-  --error: #b3261e;
-  --magenta: #7b3fc4;
-  --border: #7d858f;
+  --bg: #ffffff;
+  --panel: #f8f8f8;
+  --fg: #3b3b3b;
+  --muted: #616161;
+  --prompt: #008000;
+  --accent: #005fb8;
+  --warn: #795e26;
+  --error: #cd3131;
+  --magenta: #af00db;
+  --border: #6e7681;
 
   /* Obby tiles (text color of each cell class) */
-  --t-solid: #4a525c;
-  --t-kill: #c62828;
-  --t-conv: #8a5a00;
-  --t-jump: #7b3fc4;
-  --t-check: #11682f;
-  --t-finish: #0b57a4;
+  --t-solid: #616161;
+  --t-kill: #cd3131;
+  --t-conv: #795e26;
+  --t-jump: #af00db;
+  --t-check: #008000;
+  --t-finish: #005fb8;
   --t-player: #000000;
 
   --mono: ui-monospace, "Cascadia Code", "Cascadia Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", "DejaVu Sans Mono", monospace;
@@ -54,44 +59,44 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #0f1115;
-    --panel: #161a20;
-    --fg: #e6e6e6;
-    --muted: #a0a8b3;
-    --prompt: #7ee0a1;
-    --accent: #7cc4ff;
-    --warn: #f2c46d;
-    --error: #ff8f8f;
-    --magenta: #d7a6ff;
-    --border: #6b7480;
-    --t-solid: #b3bcc8;
-    --t-kill: #ff6b6b;
-    --t-conv: #f2c46d;
-    --t-jump: #d7a6ff;
-    --t-check: #7ee0a1;
-    --t-finish: #7cc4ff;
+    --bg: #1f1f1f;
+    --panel: #181818;
+    --fg: #cccccc;
+    --muted: #9d9d9d;
+    --prompt: #0dbc79;
+    --accent: #4daafc;
+    --warn: #cca700;
+    --error: #f85149;
+    --magenta: #c586c0;
+    --border: #6e7681;
+    --t-solid: #9d9d9d;
+    --t-kill: #f14c4c;
+    --t-conv: #dcdcaa;
+    --t-jump: #c586c0;
+    --t-check: #0dbc79;
+    --t-finish: #4daafc;
     --t-player: #ffffff;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0f1115;
-  --panel: #161a20;
-  --fg: #e6e6e6;
-  --muted: #a0a8b3;
-  --prompt: #7ee0a1;
-  --accent: #7cc4ff;
-  --warn: #f2c46d;
-  --error: #ff8f8f;
-  --magenta: #d7a6ff;
-  --border: #6b7480;
-  --t-solid: #b3bcc8;
-  --t-kill: #ff6b6b;
-  --t-conv: #f2c46d;
-  --t-jump: #d7a6ff;
-  --t-check: #7ee0a1;
-  --t-finish: #7cc4ff;
+  --bg: #1f1f1f;
+  --panel: #181818;
+  --fg: #cccccc;
+  --muted: #9d9d9d;
+  --prompt: #0dbc79;
+  --accent: #4daafc;
+  --warn: #cca700;
+  --error: #f85149;
+  --magenta: #c586c0;
+  --border: #6e7681;
+  --t-solid: #9d9d9d;
+  --t-kill: #f14c4c;
+  --t-conv: #dcdcaa;
+  --t-jump: #c586c0;
+  --t-check: #0dbc79;
+  --t-finish: #4daafc;
   --t-player: #ffffff;
 }
 
@@ -1219,19 +1224,19 @@ img.pixel,
     --panel: #fff;
     --fg: #000;
     --muted: #444;
-    --prompt: #11682f;
-    --accent: #0b57a4;
-    --warn: #7a4d00;
-    --error: #b3261e;
-    --magenta: #7b3fc4;
+    --prompt: #008000;
+    --accent: #005fb8;
+    --warn: #795e26;
+    --error: #cd3131;
+    --magenta: #af00db;
     --border: #777;
-    --t-solid: #4a525c;
-    --t-kill: #c62828;
-    --t-conv: #8a5a00;
-    --t-jump: #7b3fc4;
-    --t-check: #11682f;
-    --t-finish: #0b57a4;
-    --t-player: #000;
+    --t-solid: #616161;
+    --t-kill: #cd3131;
+    --t-conv: #795e26;
+    --t-jump: #af00db;
+    --t-check: #008000;
+    --t-finish: #005fb8;
+    --t-player: #000000;
   }
 
   body,
