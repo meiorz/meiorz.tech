@@ -7,13 +7,13 @@ www.meiorz.tech is a terminal-style personal site. The home page is plain HTML t
 Summary:
 
 - Main project: BlobGuard, an AI-assisted (agentic) engineering project on a real problem, cloud storage security: an MIT-licensed, open-source object-storage security posture scanner (Python command-line tool). Read-only: control-plane APIs only, never object contents. Every finding carries evidence and a remediation, and checks that cannot be confirmed report `error`, never `pass`. The Azure adapter is in progress (initial checks landing); AWS and GCP adapters are planned. Mei owns and directs it; it is built with an AI-assisted (agentic coding) workflow.
-- Coursework completed with grade A: CS 110C (Data Structures and Algorithms in C++), CS 111C (Data Structures and Algorithms in Java), CS 270 (Computer Architecture and Assembly, MIPS).
+- Coursework completed: CS 110C (Data Structures and Algorithms in C++), CS 111C (Data Structures and Algorithms in Java), CS 270 (Computer Architecture and Assembly, MIPS).
 - Experience: Computer Science Tutor / Teaching Assistant at City College of San Francisco since Sep 2024 (C++, Java, Python); ASL interpreter in STEM settings, working toward the CCSF ASL certificate (AMSL 2B), expected Fall 2027; Inspirit AI Ambassador and AI Scholar alum since Mar 2023.
 - Skills: C++, Java, Python, SQL, Kotlin, Bash/Shell, MIPS Assembly; Linux, Docker, Azure, Terraform; Git/GitHub, GitHub Actions (CI/CD), automated unit and integration testing, debugging, CLI development, code review; ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted development workflows.
 - Certifications: AI Scholar, Inspirit AI (Apr 2022); Microsoft Certified: Azure AI Fundamentals, AI-900 (Oct 2021); Microsoft Certified: Azure Data Fundamentals, DP-900 (Aug 2021); Microsoft Certified: Azure Fundamentals, AZ-900 (Jul 2021); Microsoft 365 Certified: Fundamentals, MS-900 (Jun 2021).
 - Languages: English (fluent), Japanese (fluent), American Sign Language.
 - Also a VTuber (anime-style avatar persona), preparing a stream relaunch.
-- In progress: a creator automation app that schedules and cross-posts content for the VTuber relaunch through each platform's official APIs. Goal: grow to 20K followers over time, building in public.
+- In progress: a creator automation app that schedules and cross-posts content for the VTuber relaunch through each platform's official APIs. Built in public.
 - Also in progress (details coming soon): an Android app (Kotlin), AI-assisted security research, and an agentic terminal CLI app.
 
 ## Profile

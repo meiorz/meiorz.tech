@@ -72,7 +72,7 @@ Inspirit AI Scholar project. Python, PyTorch.
   details coming soon.
 - Creator automation app: schedules and cross-posts content for my VTuber relaunch
   through each platform's official APIs.
-  Goal: grow to 20K followers over time, building in public. More details coming soon.
+  Building it in public. More details coming soon.
 
 ## Skills
 
@@ -90,11 +90,11 @@ Inspirit AI Scholar project. Python, PyTorch.
 City College of San Francisco: computer science transfer student, completing IGETC and
 CS major-preparation coursework for a junior transfer, target Fall 2028.
 
-- [x] CS 110C: Data Structures and Algorithms in C++ (ADTs). Grade: A
-- [x] CS 111C: Data Structures and Algorithms in Java (ADTs). Grade: A
-- [x] CS 270: Computer Architecture and Assembly (MIPS). Grade: A
+- [x] CS 110C: Data Structures and Algorithms in C++ (ADTs)
+- [x] CS 111C: Data Structures and Algorithms in Java (ADTs)
+- [x] CS 270: Computer Architecture and Assembly (MIPS)
 - [ ] IGETC and CS major preparation: in progress
-- [ ] Junior transfer, target Fall 2028 (UCLA, UC Berkeley, SF State)
+- [ ] Junior transfer, target Fall 2028
 - [ ] CCSF ASL certificate (AMSL 2B): expected Fall 2027
 
 Other coursework: Calculus I and II (MATH 110A/110B).
@@ -111,7 +111,7 @@ Other coursework: Calculus I and II (MATH 110A/110B).
 
 ### Computer Science Tutor / Teaching Assistant
 
-City College of San Francisco. Sep 2024 to present, about 8 hours a week.
+City College of San Francisco. Sep 2024 to present.
 
 - Debug student code live in C++, Java and Python.
 - Explain the reasoning rather than handing over the fix.

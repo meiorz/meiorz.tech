@@ -19,6 +19,8 @@ site/                      deployed as-is
   staticwebapp.config.json headers (CSP), redirects, MIME types, 404 page
 tools/
   check-site.mjs           privacy, CSP, links, config, budgets and claims checks
+  test-removed-details.mjs fixtures for the rules that keep removed details off the site
+  lib/removed-details.mjs  those rules: grades, transfer targets, weekly hours, follower numbers
   check-obby.mjs           proves the obby course can be finished
   make-og.mjs              regenerates site/img/og.png
 .github/workflows/         checks on every PR; deploy to Azure Static Web Apps
@@ -35,14 +37,15 @@ Then open <http://localhost:8080/>. This server doesn't read `staticwebapp.confi
 
 ## Checks
 
-Both scripts use only Node.js built-ins, so there is nothing to install (CI uses Node 24):
+The scripts use only Node.js built-ins, so there is nothing to install (CI uses Node 24):
 
 ```sh
 node tools/check-site.mjs    # add --strict to fail on warnings too
+node tools/test-removed-details.mjs
 node tools/check-obby.mjs
 ```
 
-CI runs both on every pull request and every push to `main`, and the deploy runs `check-site.mjs` again before it publishes.
+CI runs all three on every pull request and every push to `main`, and the deploy runs `check-site.mjs` again before it publishes.
 
 ## Deploy
 

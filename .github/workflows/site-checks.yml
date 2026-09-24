@@ -35,6 +35,10 @@ jobs:
           # (see DEPLOY.md). Empty for fork PRs, which is fine.
           CHECK_SITE_PRIVATE_TERMS: ${{ secrets.CHECK_SITE_PRIVATE_TERMS }}
 
+      - name: Test the removed-details rules (failing and allowed fixtures)
+        if: ${{ !cancelled() }}
+        run: node tools/test-removed-details.mjs
+
       - name: Check the obby course is completable
         if: ${{ !cancelled() }}
         run: node tools/check-obby.mjs

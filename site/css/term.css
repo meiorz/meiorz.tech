@@ -539,12 +539,6 @@ html.term-ready .nojs {
   color: var(--muted);
 }
 
-.checklist li.done .grade {
-  color: var(--prompt);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 /* Key/value lists (skills, contact). Two columns when there is room. */
 .kv {
   display: grid;

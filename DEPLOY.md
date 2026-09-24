@@ -4,7 +4,7 @@ This repo (`meiorz/meiorz.tech`) keeps the site in `site/`. GitHub Actions check
 
 | Workflow | When | What it does |
 |---|---|---|
-| `.github/workflows/site-checks.yml` | every PR, every push to `main` | runs `tools/check-site.mjs` (privacy, CSP, links, config, file types, size budgets, corrected claims) and `tools/check-obby.mjs` |
+| `.github/workflows/site-checks.yml` | every PR, every push to `main` | runs `tools/check-site.mjs` (privacy, CSP, links, config, file types, size budgets, corrected claims and removed details), `tools/test-removed-details.mjs` and `tools/check-obby.mjs` |
 | `.github/workflows/azure-static-web-apps.yml` | push to `main` | runs `check-site.mjs` again, then deploys `site/` to production |
 | same | PR opened or updated | deploys a **public** preview and comments its URL on the PR |
 | same | PR closed | deletes that preview |
@@ -150,7 +150,8 @@ Don't send out a CV or application that links www.meiorz.tech until all of these
 | A mime type with `; charset=utf-8` is rejected | Use plain `text/plain` / `text/markdown` in `mimeTypes`. |
 | A link works locally but 404s in production | SWA paths are case-sensitive and Windows isn't. `check-site.mjs` compares paths case-exactly; run it. |
 | `check-site.mjs` reports `file-type` | Only file types the privacy check can read may deploy (text, HTML, SVG, PNG, JPEG, ICO). A PDF or Word CV can carry your phone number and metadata unseen: publish `resume.txt` instead. |
-| `check-site.mjs` reports `follower-count` | A follower number reads as a current count. Only a goal may name one, with "goal" earlier in the same sentence, for example "Public goal: grow to 20K followers, building in public." |
+| `check-site.mjs` reports `follower-count` | No follower or subscriber number is published, not even as a goal. Describe the plan without one, for example "building in public". |
+| `check-site.mjs` reports `course-grade`, `transfer-target` or `weekly-hours` | These details were removed from the site on purpose: course names and codes stay, but no grades, no named transfer-target universities and no weekly hours. A university named outside a transfer or admissions context is fine. If a rule flags something legitimate, add it as an allowed fixture in `tools/test-removed-details.mjs` and narrow the rule in `tools/lib/removed-details.mjs`. |
 | `check-site.mjs` reports `degree-claim` | The site describes a transfer path (IGETC and CS major preparation, target junior transfer Fall 2028): no A.S., associate degree or graduation date. |
 
 ## Working locally

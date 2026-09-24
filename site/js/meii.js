@@ -89,7 +89,7 @@ const RULES = [
   [/\b(jal|mips|assembly|delay slot|cs ?270)\b/, 'mips'],
   [/\b(data structures?|algorithms?|adts?|dsa)\b/, 'dsa'],
   [/\b(tutor\w*|teach\w*|ta|homework|assignment|do my)\b/, 'tutor'],
-  [/\b(school|college|ccsf|educat\w*|degree|transfer\w*|igetc|ucla|berkeley|sf ?state|sfsu|universit\w*|calculus|(az|ms|ai|dp) ?900|class(es)?|courses?|stud(y|ies|ent)|cert\w*)\b/, 'education'],
+  [/\b(school|college|ccsf|educat\w*|degree|transfer\w*|igetc|universit\w*|calculus|(az|ms|ai|dp) ?900|class(es)?|courses?|stud(y|ies|ent)|cert\w*)\b/, 'education'],
   [/\b(projects?|portfolio|work(ed|ing) on|android|agentic)\b/, 'projects'],
   [/\b(blobguard|scan\w*|storage|blobs?|azure|aws|gcp|cloud|security)\b/, 'blobguard'],
   [/\b(asl|amsl|sign( language)?|signing|interpret\w*|fingerspell\w*|translate|deaf)\b/, 'asl'],
@@ -116,14 +116,14 @@ const REPLIES = {
   ],
   experience: (s) => [
     s.tool('Read', 'experience.md'), s.result('Read 3 roles'),
-    'CS Tutor / Teaching Assistant at City College of San Francisco, Sep 2024 – present (about 8 hours a week): debugs student code live in C++, Java and Python, explains the reasoning instead of handing over the fix, and translates complex concepts for students with varied backgrounds.',
+    'CS Tutor / Teaching Assistant at City College of San Francisco, Sep 2024 – present: debugs student code live in C++, Java and Python, explains the reasoning instead of handing over the fix, and translates complex concepts for students with varied backgrounds.',
     'ASL interpreting in STEM settings; working toward the CCSF ASL certificate (AMSL 2B), expected Fall 2027.',
     'Inspirit AI Ambassador & AI Scholar alum, Mar 2023 – present: AI and STEM education outreach, 100+ community contacts.',
     'Seeking Summer 2027 software engineering internships. Full details: /resume · /hire',
   ],
   dsa: (s) => [
     s.tool('Read', 'education.md'), s.result('Found 3 courses'),
-    'Data structures & algorithms, twice: CS 110C in C++ and CS 111C in Java, both covering ADTs, grade A in both. Also CS 270, Computer Architecture & Assembly (MIPS), grade A.',
+    'Data structures & algorithms, twice: CS 110C in C++ and CS 111C in Java, both covering ADTs. Also CS 270, Computer Architecture & Assembly (MIPS).',
     s.say('As a CS tutor, Mei debugs this kind of code live with students. Demos: ',
       s.join(['fix my segfault', 'now in java', 'explain jal'].map((q) => s.btn(q)))),
   ],
@@ -141,19 +141,19 @@ const REPLIES = {
     s.tool('Write', 'LinkedStack.java'),
     s.result('Wrote 4 lines', s.diff(['T pop() {', '  T item = head.item;', '  head = head.next; // old node: GC', '  return item; }']
       .map((line, i) => ['+', i + 1, line]))),
-    'Same ADT, no delete: the garbage collector reclaims the old node. Mei’s data structures courses covered ADTs in C++ (CS 110C) and Java (CS 111C), grade A in both.',
+    'Same ADT, no delete: the garbage collector reclaims the old node. Mei’s data structures courses covered ADTs in C++ (CS 110C) and Java (CS 111C).',
   ],
   mips: (s) => [
     s.tool('Bash', 'spim -file hello.s'), s.result('Hello, obby!'),
-    'jal saves the return address in $ra and jumps; jr $ra comes back. On classic MIPS, the delay slot after a jump runs anyway (CS 270, grade A).',
+    'jal saves the return address in $ra and jumps; jr $ra comes back. On classic MIPS, the delay slot after a jump runs anyway (CS 270).',
   ],
   tutor: 'Since Sep 2024, Mei has tutored CS at City College of San Francisco: live debugging in C++, Java and Python, explaining the reasoning instead of handing over the fix. So no homework from me either. Which line is confusing?',
   education: (s) => [
     s.tool('Read', 'education.md'),
     'Computer Science transfer student at City College of San Francisco, completing IGETC and CS major-preparation coursework for a junior transfer, target Fall 2028. Also Calculus I–II.',
-    s.todos([['CS 110C · Data Structures & Algorithms in C++ · grade A', 1], ['CS 111C · Data Structures & Algorithms in Java · grade A', 1],
-      ['CS 270 · Computer Architecture & Assembly (MIPS) · grade A', 1], ['IGETC + CS major preparation · in progress', 0],
-      ['Junior transfer · target Fall 2028 (UCLA · UC Berkeley · SF State)', 0], ['CCSF ASL certificate · AMSL 2B, expected Fall 2027', 0]]),
+    s.todos([['CS 110C · Data Structures & Algorithms in C++', 1], ['CS 111C · Data Structures & Algorithms in Java', 1],
+      ['CS 270 · Computer Architecture & Assembly (MIPS)', 1], ['IGETC + CS major preparation · in progress', 0],
+      ['Junior transfer · target Fall 2028', 0], ['CCSF ASL certificate · AMSL 2B, expected Fall 2027', 0]]),
     'Certifications: AI Scholar, Inspirit AI (Apr 2022); Microsoft Certified: Azure AI Fundamentals (AI-900, Oct 2021), Azure Data Fundamentals (DP-900, Aug 2021) and Azure Fundamentals (AZ-900, Jul 2021); Microsoft 365 Certified: Fundamentals (MS-900, Jun 2021).',
   ],
   projects: (s) => [
@@ -177,7 +177,7 @@ const REPLIES = {
   stream: (s) => [
     s.tool('Bash', 'obs --startstreaming'), s.result('[placeholder] scene: "Starting Soon" · avatar rig: coming soon · mic: on (probably)'),
     'Not live yet: Mei is a VTuber (an anime-style avatar persona) preparing a relaunch. Rigging, OBS, editing and stream-language details: coming soon.',
-    'Work in progress: a creator automation app that schedules and cross-posts content for the relaunch, using each platform’s official APIs. Goal: grow to 20K followers over time, building in public.',
+    'Work in progress: a creator automation app that schedules and cross-posts content for the relaunch, using each platform’s official APIs, built in public.',
   ],
   bert: (s) => [
     s.tool('Read', 'projects/bert-sentiment.md'), s.result('Read 1 project'),
@@ -662,7 +662,7 @@ class Session {
   }
 
   async hireFlow() {
-    this.reply('Mei is seeking Summer 2027 software engineering internships. Short pitch: Mei explains code every week as a CS tutor/TA (since Sep 2024), earned an A in both data structures courses and in computer architecture, and directs BlobGuard, an open-source engineering project on cloud storage security with CI and automated tests, built with an AI-assisted (agentic coding) workflow. Full story: /resume.');
+    this.reply('Mei is seeking Summer 2027 software engineering internships. Short pitch: Mei explains code every week as a CS tutor/TA (since Sep 2024), has completed data structures in both C++ and Java plus computer architecture, and directs BlobGuard, an open-source engineering project on cloud storage security with CI and automated tests, built with an AI-assisted (agentic coding) workflow. Full story: /resume.');
     const i = await this.askMenu(TEXT.en.hire, `mailto:${EMAIL}`, 2, 'en');
     const mail = () => this.link(MAILTO, EMAIL);
     if (i === 0) {

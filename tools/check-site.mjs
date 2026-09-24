@@ -17,11 +17,12 @@
  *   6. budgets  per-file and total size budgets
  *   7. html     lang, charset, title, alt text, unique ids
  *   8. syntax   JavaScript parses (node --check), JSON parses, text is valid UTF-8
- *   9. claims   facts that were corrected stay corrected: no follower or subscriber
- *               counts (a count is accepted only when the same sentence states it as a
- *               goal, e.g. "Public goal: grow to 20K followers"), and no A.S. /
+ *   9. claims   facts that were corrected stay corrected, and removed details stay removed:
+ *               no course grades, named transfer-target universities, weekly hours or
+ *               follower/subscriber numbers (not even as a goal), and no A.S. /
  *               associate-degree or expected-graduation claims. Scanned as written and
- *               as displayed, like the privacy check; matches are printed.
+ *               as displayed, like the privacy check; matches are printed. The
+ *               removed-details rules are fixture-tested by tools/test-removed-details.mjs.
  *
  * Usage: node tools/check-site.mjs [--root <repo-dir>] [--strict] [--quiet]
  *   --root    repository root (default: the parent of this tools/ folder)
@@ -41,6 +42,7 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { gzipSync, inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
+import { findRule, LETTER_GRADE, REMOVED_DETAILS } from './lib/removed-details.mjs';
 
 // ---------------------------------------------------------------------------
 // Rules and budgets. KB = 1024 bytes.
@@ -119,8 +121,7 @@ const FORBIDDEN = [
   // Case-sensitive on purpose: /gpa/i would hit "imgpane".
   { id: 'gpa', why: 'GPA (never published)',
     re: /GPA|(?<![A-Za-z])[Gg][Pp][Aa](?![a-z])|\b[Gg]\.\s?[Pp]\.\s?[Aa]\b|\b[Gg](?:rade|RADE)[-\s][Pp](?:oint|OINT)\b/g },
-  { id: 'grade', why: 'a grade other than A (only the three A grades are published)',
-    re: /\b[Gg]rades?\s*:?\s*(?:of\s+|was\s+)?(?:[B-DF]|A(?=[+-]))[+-]?(?![\w+-])/g },
+  LETTER_GRADE, // id 'grade': B-F, A+, A- (tools/lib/removed-details.mjs; a plain A is check 9's course-grade)
   { id: 'class-standing', why: 'class standing', re: /sophomore/gi },
   { id: 'academic-or-health', why: 'withdrawal or disability detail', re: /\bdisabilit(?:y|ies)\b|\bwithdr(?:aw|ew)\w*/gi },
   { id: 'course-repeat', why: 'repeated course',
@@ -143,29 +144,14 @@ const PATH_ADDRESS = /\d+-[a-z]+(?:-[a-z]+)*-(?:st|street|ave|avenue|blvd|rd|roa
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g;
 
 /**
- * CLAIMS (check 9): corrected facts that must not come back. Unlike FORBIDDEN, these are
- * not private, so matches are printed. `ok(text, start, end, kind)` may accept a match in
- * context. Fixtures that prove these rules fire (and that goal wording passes) are kept
- * outside the repo; re-run them when a rule changes.
+ * CLAIMS (check 9): corrected facts and removed details that must not come back. Unlike
+ * FORBIDDEN, these are not private, so matches are printed. `ok(text, start, end)` may
+ * accept a match in context. The removed-details rules (grades, transfer targets, weekly
+ * hours, follower numbers) live in tools/lib/removed-details.mjs, with failing and allowed
+ * fixtures in tools/test-removed-details.mjs.
  */
-const COUNT_WORDS = 'one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fifteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety|hundred';
-// A count: 20,000 / 20 000 / 20K / 20k+ / 1.5M / 20 thousand / twenty thousand / thousands of
-const COUNT = String.raw`(?:\d{1,3}(?:[,. \u202f]\d{3})+|\d+(?:[.,]\d+)?(?:\s*(?:[km]\b|thousand|million))?` +
-  String.raw`|(?:(?:${COUNT_WORDS})[\s-]+)*(?:${COUNT_WORDS}|thousand|million)(?:[\s-]+(?:thousand|million))?` +
-  String.raw`|(?:hundreds|thousands|millions)\s+of)`;
-const AUDIENCE = String.raw`(?:followers?|subscribers?)`;
-const PLATFORM = String.raw`(?:twitch|youtube|tiktok|kick|instagram|bluesky|twitter)`;
-const FOLLOWER_COUNT = new RegExp([
-  // "about 20K followers", "~20K Twitch followers", "20,000 followers", "20k-follower channel"
-  String.raw`(?<![\w.,])${COUNT}\s*\+?[\s-]*(?:[a-z\u2019'-]+[\s-]+){0,2}?${AUDIENCE}\b`,
-  // "followers: 20K", "follower count of ~20K"
-  String.raw`\b(?:follower|subscriber)s?(?:\s+count)?\s*(?:[:=\u2248~]|\bof\b)\s*[~\u2248]?\s*(?:about\s+|around\s+|over\s+)?\d[\d,.]*(?:\s*(?:[km]\b|thousand|million))?`,
-  // "20K on Twitch", "20K Twitch community"
-  String.raw`(?<![\w.,])\d+(?:[.,]\d+)?\s*[km]\+?\s+(?:on\s+)?${PLATFORM}\b`,
-].join('|'), 'gi');
 const CLAIMS = [
-  { id: 'follower-count', why: 'follower count (allowed only as a goal: "goal" earlier in the same sentence)',
-    re: FOLLOWER_COUNT, ok: statedAsGoal },
+  ...REMOVED_DETAILS,
   { id: 'degree-claim', why: 'A.S./associate-degree or graduation-date claim',
     re: new RegExp([
       String.raw`(?<![\w.])A\.\s?S\.(?!\w)`, // A.S., A. S., A.S.-T
@@ -1317,74 +1303,24 @@ function checkSyntax() {
 // 9. Claims
 // ---------------------------------------------------------------------------
 
-// Where a sentence (the context a goal must be stated in) ends. `kind` is how the text is
-// read: 'text' (prose, Markdown, and the as-displayed view of HTML, where block tags are
-// U+2029), 'markup' (HTML/SVG as written: tags and attribute quotes end it too) or
-// 'script' (JS/JSON: each string literal and each source line is its own context).
-const SENTENCE_END = String.raw`[.!?;](?=[\s"'\u201d\u2019)\]}<]|$)|[\u2029|]|\n[ \t]*(?:\n|[-*+>][ \t]|\d+[.)][ \t]|#{1,6}[ \t])`;
-const SENTENCE_ENDS = {
-  text: new RegExp(SENTENCE_END, 'g'),
-  markup: new RegExp(`${SENTENCE_END}|[<>"]`, 'g'),
-  script: new RegExp(`${SENTENCE_END}|['"\`\\n]`, 'g'),
-};
-const INLINE_TAG = new RegExp(String.raw`<\/?(?:${[...INLINE_TAGS].join('|')})\b[^<>]*>`, 'gi');
-const GOAL = /\bgoals?\b/i;
-const DONE = String.raw`(?:reached|achieved|surpassed|exceeded|smashed|crushed|unlocked|met|hit|done|completed?)\b`;
-// "Goal reached: 20K", "goal hit", a done checkbox or tick. ("Goal: hit 20K" is still a goal.)
-const ACHIEVED = new RegExp(String.raw`\b(?:reached|achieved|surpassed|exceeded|unlocked)\b|\bgoals?\s+(?:(?:was|is|has\s+been|now)\s+)?${DONE}|[\u2612\u2713\u2714\u2705]`, 'i');
-// "... from 20K", "already 20K": a current count, even inside a goal sentence.
-const CURRENT = /\b(?:from|already|currently|now|still)\s+(?:(?:about|around|over|nearly|almost)\s+)?[~\u2248]?\s*$/i;
-const GOAL_AFTER = new RegExp(String.raw`^\s*-?\s*(?:(?:is|as|remains)\s+(?:the|my|her|our|a|one)\s+(?:[a-z]+\s+)?)?goals?\b(?!\s*(?:(?:was|is|has\s+been)\s+)?:?\s*${DONE})`, 'i');
-
-/**
- * Is the count at text[start, end) stated as a goal? Yes when "goal" comes earlier in the
- * same sentence (and nothing there says it was reached or is the current count), or right
- * after it ("a 20K-follower goal", "20K followers is the goal").
- */
-function statedAsGoal(text, start, end, kind) {
-  let before = text.slice(Math.max(0, start - 240), start);
-  if (kind === 'markup') before = before.replace(INLINE_TAG, '');
-  if (CURRENT.test(before)) return false;
-  if (GOAL_AFTER.test(text.slice(end, end + 40))) return true;
-  let from = 0;
-  for (const m of before.matchAll(SENTENCE_ENDS[kind] ?? SENTENCE_ENDS.text)) from = m.index + m[0].length;
-  const sentence = before.slice(from);
-  return GOAL.test(sentence) && !ACHIEVED.test(sentence);
-}
-
 function checkClaims() {
-  const c = new Check(9, 'Claims: no follower counts (goals excepted), no A.S. or graduation claims');
-  let goals = 0;
+  const c = new Check(9, 'Claims: no grades, transfer targets, weekly hours, follower numbers, A.S. or graduation claims');
   const short = (s) => (s.length > 60 ? `${s.slice(0, 57)}...` : s).replace(/\s+/g, ' ');
-  const find = (text, kind, count) => {
-    const hits = [];
-    for (const r of CLAIMS) {
-      for (const m of text.matchAll(r.re)) {
-        const start = m.index;
-        const end = start + m[0].length;
-        if (r.ok?.(text, start, end, kind)) {
-          if (count) goals++;
-        } else hits.push({ r, start, end, s: m[0] });
-      }
-    }
-    return hits;
-  };
+  const find = (text) => CLAIMS.flatMap((r) => findRule(r, text).map((h) => ({ r, ...h })));
   for (const f of textFiles) {
-    const kind = /^\.(?:html?|svg|xml)$/.test(f.ext) ? 'markup'
-      : /^\.(?:m?js|json|webmanifest|map)$/.test(f.ext) ? 'script' : 'text';
     const text = f.text.replace(/;base64,[A-Za-z0-9+/=]+/g, blank);
-    const raw = find(text, kind, true);
+    const raw = find(text);
     for (const h of raw) c.error(f.rel, f.text, h.start, h.r.id, `${h.r.why}: "${short(h.s)}"`);
     const view = decodedView(text, f.ext, '\u2029');
     if (view.text === text) continue;
-    for (const h of find(view.text, kind === 'script' ? 'script' : 'text', false)) {
+    for (const h of find(view.text)) {
       const a = view.map[h.start];
       const b = view.map[h.end - 1] + 1;
       if (raw.some((x) => x.r === h.r && x.start < b && a < x.end)) continue;
       c.error(f.rel, f.text, a, h.r.id, `as displayed: ${h.r.why}: "${short(h.s)}"`);
     }
   }
-  c.stats = `${textFiles.length} text files against ${CLAIMS.length} rules; ${goals} count${goals === 1 ? '' : 's'} accepted as stated goals`;
+  c.stats = `${textFiles.length} text files against ${CLAIMS.length} rules`;
   return c;
 }
 
