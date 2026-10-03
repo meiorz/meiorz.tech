@@ -1,0 +1,7 @@
+# Firebase CLI: local deploy cache and debug logs
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# Service-account keys must never be committed
+*-firebase-adminsdk-*.json

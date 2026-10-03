@@ -46,7 +46,7 @@ curl.exe -sI https://<project-id>.web.app/no-such-page          # 404
 
 ## 3. Let GitHub Actions deploy
 
-The workflow needs one secret, `FIREBASE_SERVICE_ACCOUNT`: the JSON key of a service account that may deploy to Hosting. The CLI creates the account and stores the secret for you. In your own terminal, in this repo:
+The workflow needs one secret, `FIREBASE_SERVICE_ACCOUNT_MEIORZ_TECH`: the JSON key of a service account that may deploy to Hosting. The CLI creates the account and stores the secret for you. In your own terminal, in this repo:
 
 ```sh
 firebase init hosting:github
@@ -54,7 +54,7 @@ firebase init hosting:github
 
 - Repository: `meiorz/meiorz.tech`.
 - When it offers to set up workflows or overwrite files, answer **No**: `.github/workflows/firebase-hosting.yml` is already here, and it runs the checks before it deploys.
-- If the secret it created has a different name (for example `FIREBASE_SERVICE_ACCOUNT_<PROJECT_ID>`), either rename it in **Settings → Secrets and variables → Actions** or change the two `firebaseServiceAccount:` lines in the workflow to match.
+- If the secret it created has a different name (for example `FIREBASE_SERVICE_ACCOUNT`), either rename it in **Settings → Secrets and variables → Actions** or change the two `firebaseServiceAccount:` lines in the workflow to match.
 
 Never paste the key into a file in the repo, a commit, or a chat.
 
@@ -90,7 +90,7 @@ Either add `meiorz.tech` as a second custom domain in **Hosting** and choose **R
 
 | Symptom | Fix |
 |---|---|
-| The deploy step fails with a permission or credential error | The `FIREBASE_SERVICE_ACCOUNT` secret is missing, has another name, or belongs to another project. Run `firebase init hosting:github` again (step 3). |
+| The deploy step fails with a permission or credential error | The `FIREBASE_SERVICE_ACCOUNT_MEIORZ_TECH` secret is missing, has another name, or belongs to another project. Run `firebase init hosting:github` again (step 3). |
 | The deploy step cannot find a project | `.firebaserc` still holds the placeholder. Put the project ID in it (step 1). |
 | `build-site.mjs --check` reports a file is out of date | `site/index.html`, `site/404.html` and `site/js/strings.js` are generated. Edit `res/values/strings.xml` or `res/layout/`, run `node tools/build-site.mjs` and commit the result. |
 | `.luau` downloads instead of showing as text | Its Content-Type comes from the `**/*.@(luau|txt)` headers entry in `firebase.json`. `check-site.mjs` fails if that entry is gone. |
