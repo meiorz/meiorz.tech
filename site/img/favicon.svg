@@ -1,18 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="32" height="32" role="img" aria-labelledby="favicon-title">
-  <title id="favicon-title">meiorz.tech: terminal prompt mark</title>
-  <!-- Dark tile with a thin edge so it stays visible on dark tab strips. -->
-  <rect x="0.5" y="0.5" width="15" height="15" rx="3" fill="#0f1115" stroke="#3b4350"/>
-  <!-- ">_" drawn on the 16px pixel grid so it stays sharp at favicon size. -->
-  <g shape-rendering="crispEdges">
-    <g fill="#7ee0a1">
-      <rect x="3" y="4" width="2" height="1"/>
-      <rect x="4" y="5" width="2" height="1"/>
-      <rect x="5" y="6" width="2" height="1"/>
-      <rect x="6" y="7" width="2" height="2"/>
-      <rect x="5" y="9" width="2" height="1"/>
-      <rect x="4" y="10" width="2" height="1"/>
-      <rect x="3" y="11" width="2" height="1"/>
-    </g>
-    <rect x="9" y="10" width="4" height="2" fill="#e6e6e6"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" role="img" aria-labelledby="favicon-title">
+  <title id="favicon-title">meiorz.tech: a fox curled up asleep</title>
+  <!-- The site logo (img/logo.svg) in a soft gradient of mid-tone clay, so it shows on light and dark tab strips. -->
+  <defs>
+    <linearGradient id="favicon-shade" gradientUnits="userSpaceOnUse" x1="14" y1="2" x2="48" y2="62">
+      <stop offset="0" stop-color="#de8455"/>
+      <stop offset="0.7" stop-color="#b9502e"/>
+    </linearGradient>
+    <mask id="favicon-cut">
+      <rect width="64" height="64" fill="#fff"/>
+      <g fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round">
+        <!-- closed eye -->
+        <path d="M20.5 19.5 q3.5 3 7.5 1.5"/>
+        <!-- the pale tip of the tail -->
+        <path d="M42.5 16 L57.5 11.5"/>
+      </g>
+    </mask>
+  </defs>
+  <path mask="url(#favicon-cut)" fill="url(#favicon-shade)" d="M35 4 C50 4 60 17 60 34 A28 28 0 0 1 4.3 37.9 C3 30 4 24 7 19 L4 9 L14 13 L18 2 L25 13 C30 14 34 18 36 23.5 C32 28 26 31 19.8 31.2 A14 14 0 1 0 43.4 26.6 C44.5 18 42 9 35 4 Z"/>
 </svg>

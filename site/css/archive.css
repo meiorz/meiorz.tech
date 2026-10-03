@@ -1,31 +1,22 @@
 /*
  * archive.css: extra styles for the pre-rendered pages under /archive/.
  *
- * Linked after /css/term.css, which provides the window, titlebar, chips,
+ * Linked after /css/term.css, which provides the header, nav, page column,
  * headings, links, focus rings and themes. This file only reads design tokens
- * term.css defines (--panel --muted --accent --warn --magenta --border
+ * term.css defines (--panel --muted --accent --warn --magenta --border --line
  * --radius --gap). It adds no custom properties and no colour values, so
  * light/dark theming works without extra rules. Scoped to body.archive-page.
  */
 
 /* ---------- layout ---------- */
 
-/* term.css leaves room for the sticky prompt; archive pages have none. */
-.archive-page .screen {
-  padding-bottom: 1.5rem;
-}
-
-/* Keep long-form text at a readable measure inside the terminal window. */
-.archive-page .screen > * {
-  max-width: 78ch;
-}
-
-.archive-page .chips a[aria-current="page"] {
-  font-weight: 700;
+.archive-page .page {
+  padding-top: 1.5rem;
 }
 
 .archive-page h1 {
-  margin: 0.5rem 0 0.75rem;
+  margin: 0.5rem 0 1rem;
+  font-size: clamp(1.875rem, 5vw, 2.5rem);
 }
 
 .archive-page h2 {
@@ -64,20 +55,6 @@
 .post__byline {
   margin: 0;
   color: var(--muted);
-}
-
-.post__hero {
-  margin: 0 0 1.5rem;
-}
-
-/* width/height attributes on the <img> reserve the aspect ratio (no layout shift). */
-.post__hero img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--panel);
 }
 
 .prose p {
@@ -166,15 +143,15 @@
 .post-list li,
 .archive-list li {
   display: grid;
-  grid-template-columns: 11ch minmax(0, 1fr);
+  grid-template-columns: 7rem minmax(0, 1fr);
   gap: var(--gap);
   margin: 0;
   padding: 0.4rem 0;
-  border-bottom: 1px dashed var(--border);
+  border-bottom: 1px solid var(--line);
 }
 
 .archive-list li {
-  grid-template-columns: 16ch minmax(0, 1fr);
+  grid-template-columns: 9.5rem minmax(0, 1fr);
 }
 
 .post-list time,

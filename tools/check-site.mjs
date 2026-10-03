@@ -5,15 +5,15 @@
  *   1. paths    lowercase, URL-safe names; only file types the privacy scan can read (no PDF,
  *               DOCX, CSV, ...); no junk or build-manifest files; required files exist
  *   2. privacy  nothing from the FORBIDDEN list (phone numbers, other e-mail addresses, GPA,
- *               trackers, stream-channel URLs, AI-screener text, ...), also in file names and
+ *               the owner's name, trackers, stream-channel URLs, AI-screener text, ...), also in file names and
  *               image metadata. Text is scanned as written AND as a browser would show it
  *               (tags removed, HTML entities and JS escapes decoded, Unicode spaces/dashes folded)
  *   3. csp      nothing the Content-Security-Policy would block (inline styles and scripts,
  *               event handlers, eval, third-party requests)
  *   4. links    every local href/src/srcset/url()/import/fetch path and every
  *               https://www.meiorz.tech/... URL resolves to a real file, with exact case
- *   5. config   staticwebapp.config.json parses, is <= 20 KB, its routes are sound, and its
- *               CSP is exactly the SPEC section 3 policy
+ *   5. config   firebase.json (repository root) parses, publishes site/, its redirects are
+ *               sound, and its CSP is exactly the SPEC section 3 policy
  *   6. budgets  per-file and total size budgets
  *   7. html     lang, charset, title, alt text, unique ids
  *   8. syntax   JavaScript parses (node --check), JSON parses, text is valid UTF-8
@@ -49,34 +49,33 @@ import { findRule, LETTER_GRADE, REMOVED_DETAILS } from './lib/removed-details.m
 // ---------------------------------------------------------------------------
 
 const KB = 1024;
-const CONFIG_FILE = 'staticwebapp.config.json';
-const CONFIG_MAX = 20 * KB; // platform limit for staticwebapp.config.json
+const CONFIG_FILE = 'firebase.json'; // Firebase Hosting config, at the repository root
 const TOTAL_BUDGET = 5 * KB * KB;
 const DEFAULT_FILE_BUDGET = 400 * KB;
-const MAX_FILES = 15000; // Azure Static Web Apps Free plan file limit
+const MAX_FILES = 15000; // a sanity limit: this site has a few dozen files
 const PUBLIC_EMAIL = 'business@meiorz.tech';
 const OWN_HOSTS = /^(?:www\.)?meiorz\.tech$/i;
 
 /** First matching entry wins: [exact path or RegExp, max bytes]. */
 const BUDGETS = [
   ['index.html', 45 * KB],
-  ['css/term.css', 25 * KB],
+  ['css/term.css', 28 * KB],
   ['js/term.js', 56 * KB],
+  ['js/strings.js', 24 * KB],
   ['js/obby.js', 36 * KB],
-  ['js/meii.js', 40 * KB],
+  ['js/meiorz-cli.js', 40 * KB],
   ['img/og.png', 150 * KB],
-  ['img/avatar.svg', 12 * KB],
+  ['img/portrait.png', 100 * KB],
   [/^img\//, 60 * KB],
   [/^archive\/img\//, 400 * KB],
-  [CONFIG_FILE, CONFIG_MAX],
 ];
 
 const REQUIRED = [
-  'index.html', '404.html', CONFIG_FILE,
+  'index.html', '404.html',
   'css/term.css', 'css/archive.css',
-  'js/theme.js', 'js/term.js', 'js/obby.js', 'js/luau-table.js', 'js/meii.js',
+  'js/theme.js', 'js/term.js', 'js/strings.js', 'js/obby.js', 'js/luau-table.js', 'js/meiorz-cli.js',
   'obby/obbycourse.luau',
-  'img/avatar.svg', 'img/favicon.svg', 'img/og.png',
+  'img/favicon.svg', 'img/og.png',
   'resume.txt', 'llms.txt', 'index.md', 'robots.txt', 'sitemap.xml',
   'archive/index.html', 'archive/home-2023.html', 'archive/blog/index.html',
 ];
@@ -89,7 +88,7 @@ const DEPLOYABLE_EXT = new Set([...TEXT_EXT, '.png', '.jpg', '.jpeg', '.ico']);
 const DOCUMENT_EXT = new Set(['.pdf', '.doc', '.docx', '.odt', '.rtf', '.pages', '.csv', '.tsv', '.xls',
   '.xlsx', '.ods', '.numbers', '.ppt', '.pptx', '.odp', '.key', '.epub', '.zip', '.7z', '.rar', '.tar', '.tgz']);
 const JUNK_FILES = new Set(['.ds_store', 'thumbs.db', 'desktop.ini']);
-// Any of these would make the SWA builder (Oryx) try to build site/ if skip_app_build is removed.
+// site/ is published as it is: a build manifest in it is in the wrong place (and would be public).
 const BUILD_MANIFESTS = new Set(['gemfile', 'gemfile.lock', 'package.json', 'package-lock.json',
   'yarn.lock', 'pnpm-lock.yaml', 'requirements.txt', 'pyproject.toml', 'composer.json']);
 
@@ -105,6 +104,16 @@ const BUILD_MANIFESTS = new Set(['gemfile', 'gemfile.lock', 'package.json', 'pac
 // numbers match too.
 const PHONE_SEP = String.raw`\s*[-./\u2010-\u2015\u2212]?\s*`;
 const PRIVATE_WORD_HASHES = new Set(['ecc2b32b16516dc9bca16ca5f0650d17a011f2e6c112cc229a3153e99aeedeff']);
+// The owner's name is off the site for now (the handle stands in). The family name in its
+// usual spellings, and the given name only capitalised or in capitals: in lowercase it is
+// part of the handle's history and of profile URLs.
+const NAME_HASHES = new Set([
+  'c0e0ee5327411151383eb9268ccce3588b8067a0161939a5c71604f4f4ceee60',
+  'd02442d0fd72be7adea0306041f14638d90255db8d8b10d818af3ee2441b5786',
+  'eb1e515b65591a34aea3bfc088169a90f4ba91016dc62733046ae42881934ef5',
+  '9b305c8b9db232d5e04b665e02e12aaaea5074479177239657ac6644b3db1e08',
+  '5ce7173ec1c436157f0d892f23c7191da7adbfe738c52f8b94285cb72d848405',
+]);
 const hashCache = new Map();
 function sha256(word) {
   if (!hashCache.has(word)) hashCache.set(word, createHash('sha256').update(word).digest('hex'));
@@ -118,6 +127,9 @@ const FORBIDDEN = [
   // Stored as SHA-256 of the lower-cased word, so this public file does not name it.
   { id: 'old-org-email', why: 'old organisation name or address', re: /[A-Za-z0-9]+/g,
     ok: (w) => !PRIVATE_WORD_HASHES.has(sha256(w.toLowerCase())) },
+  // Also SHA-256, of the word as written (see NAME_HASHES).
+  { id: 'personal-name', why: 'the name of the site owner (not published for now; use the handle)', re: /[A-Za-z]+/g,
+    ok: (w) => !NAME_HASHES.has(sha256(w)) },
   // Case-sensitive on purpose: /gpa/i would hit "imgpane".
   { id: 'gpa', why: 'GPA (never published)',
     re: /GPA|(?<![A-Za-z])[Gg][Pp][Aa](?![a-z])|\b[Gg]\.\s?[Pp]\.\s?[Aa]\b|\b[Gg](?:rade|RADE)[-\s][Pp](?:oint|OINT)\b/g },
@@ -152,13 +164,15 @@ const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}
  */
 const CLAIMS = [
   ...REMOVED_DETAILS,
+  { id: 'future-plan', why: 'a goal or plan with a date (transfer target, certificate in progress): not published',
+    re: /\b[Jj]unior\s+transfer\b|\b[Tt]ransfer\s+student\b|\b[Tt]arget(?:ing)?\s+(?:of\s+)?(?:Fall|Spring|Summer|Winter)\s+20\d\d\b|\b[Ee]xpected\s+(?:Fall|Spring|Summer|Winter)\s+20\d\d\b|\b[Ww]orking\s+toward\b/g },
   { id: 'degree-claim', why: 'A.S./associate-degree or graduation-date claim',
     re: new RegExp([
       String.raw`(?<![\w.])A\.\s?S\.(?!\w)`, // A.S., A. S., A.S.-T
       String.raw`\bAS-T\b|\bAS\s+(?:[Dd]egrees?\b|in\s+[A-Z])`,
       String.raw`\b[Aa]ssociate(?:'s|\u2019s)?\s+(?:[Dd]egrees?\b|(?:of|in)\s+(?:Science|Arts)\b)`,
       String.raw`\b[Dd]egree\s+expected\b|\b[Ee]xpected\s+(?:graduation|to\s+graduate)\b`,
-      // "Expected 2027", "expected May 2027"; a season ("expected Fall 2027", the ASL certificate) is allowed
+      // "Expected 2027", "expected May 2027" (a season is caught by future-plan)
       String.raw`\b[Ee]xpected\s+(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+)?20\d\d\b`,
       String.raw`\b[Gg]raduat(?:ing|es?|ion)\b[^.\n]{0,25}?\b20\d\d\b`,
     ].join('|'), 'g') },
@@ -333,7 +347,7 @@ class Check {
 
   add(level, file, text, index, rule, msg) {
     const pos = text != null && index != null ? lineCol(text, index) : null;
-    this.items.push({ level, file: file ? `site/${file}` : null, pos, rule, msg: String(msg).replace(/\s+/g, ' ') });
+    this.items.push({ level, file: file ? (file === CONFIG_FILE ? file : `site/${file}`) : null, pos, rule, msg: String(msg).replace(/\s+/g, ' ') });
   }
 
   error(file, text, index, rule, msg) { this.add('error', file, text, index, rule, msg); }
@@ -399,15 +413,17 @@ const cssFiles = textFiles.filter((f) => f.ext === '.css');
 const jsFiles = textFiles.filter((f) => f.ext === '.js' || f.ext === '.mjs');
 
 let config = null;
+let configText = null;
 let configError = null;
-if (byRel.has(CONFIG_FILE)) {
-  try {
-    config = JSON.parse(byRel.get(CONFIG_FILE).text);
-  } catch (e) {
-    configError = e.message;
-  }
+try {
+  configText = readFileSync(join(ROOT, CONFIG_FILE), 'utf8');
+  config = JSON.parse(configText);
+} catch (e) {
+  if (configText != null) configError = e.message;
 }
-const routes = Array.isArray(config?.routes) ? config.routes.filter((r) => r && typeof r.route === 'string') : [];
+const hosting = config?.hosting && typeof config.hosting === 'object' && !Array.isArray(config.hosting) ? config.hosting : null;
+const redirects = Array.isArray(hosting?.redirects)
+  ? hosting.redirects.filter((r) => r && typeof r.source === 'string' && typeof r.destination === 'string') : [];
 
 // ---------------------------------------------------------------------------
 // Markup parsing (HTML and SVG). Regex-based on purpose: the files are ours and
@@ -546,25 +562,39 @@ for (const f of jsFiles) Object.assign(f, jsViews(f.text));
 // Reference resolution (shared by the links, csp and config checks)
 // ---------------------------------------------------------------------------
 
-/** Does an SWA route pattern match a request path? Mirrors the documented rules. */
-function routeMatches(pattern, path) {
-  const star = pattern.indexOf('*');
-  if (star === -1) {
-    if (pattern === path) return true;
-    if (pattern.endsWith('/index.html')) { // an index.html route also matches its folder
-      const folder = pattern.slice(0, -'index.html'.length);
-      return path === folder || path === folder.slice(0, -1);
-    }
-    return false;
+/**
+ * A Firebase Hosting glob as a RegExp: ** crosses folders, * and ? stay inside one,
+ * {a,b} and @(a|b) are alternatives. Enough for the patterns firebase.json uses here.
+ */
+function globToRegExp(glob) {
+  let re = '';
+  for (let i = 0; i < glob.length; i++) {
+    const ch = glob[i];
+    if (ch === '*' && glob[i + 1] === '*') {
+      re += '.*';
+      i++;
+    } else if (ch === '*') re += '[^/]*';
+    else if (ch === '?') re += '[^/]';
+    else if (ch === '{') re += '(?:';
+    else if (ch === '}') re += ')';
+    else if (ch === ',') re += '|';
+    else if (ch === '@' && glob[i + 1] === '(') {
+      re += '(?:';
+      i++;
+    } else if (ch === '(' || ch === ')' || ch === '|') re += ch;
+    else re += ch.replace(/[.+^$[\]\\]/, '\\$&');
   }
-  if (!path.startsWith(pattern.slice(0, star))) return false;
-  const rest = pattern.slice(star + 1);
-  if (!rest) return true;
-  const exts = /^\.\{(.+)\}$/.exec(rest)?.[1].split(',') ?? (rest.startsWith('.') ? [rest.slice(1)] : []);
-  return exts.some((e) => path.endsWith(`.${e.trim()}`));
+  return new RegExp(`^${re}$`);
 }
 
-const firstRoute = (path) => routes.find((r) => routeMatches(r.route, path));
+const globCache = new Map();
+function globMatches(glob, path) {
+  if (!globCache.has(glob)) globCache.set(glob, globToRegExp(glob));
+  return globCache.get(glob).test(path);
+}
+
+/** The redirect Firebase Hosting would apply to a request path (the first match wins). */
+const firstRedirect = (path) => redirects.find((r) => globMatches(r.source, path));
 
 /**
  * Classify a URL found in file `fromRel`. Returns one of
@@ -610,17 +640,16 @@ function verifyLocal(check, f, text, index, ref, raw) {
   let target = ref.isDir ? (ref.rel ? `${ref.rel}/index.html` : 'index.html') : ref.rel;
   if (!fileSet.has(target)) {
     const requestPath = `/${ref.rel}${ref.isDir && ref.rel ? '/' : ''}`;
-    const route = firstRoute(requestPath);
     if (!ref.isDir && dirSet.has(ref.rel) && fileSet.has(`${ref.rel}/index.html`)) {
       check.warn(f.rel, text, index, 'folder-without-slash',
         `"${raw}" is a folder; link to "/${ref.rel}/" so relative links on that page resolve`);
       target = `${ref.rel}/index.html`;
-    } else if (route && (route.redirect || route.rewrite)) {
-      return null; // served by a redirect/rewrite route (targets are verified by the config check)
+    } else if (firstRedirect(requestPath)) {
+      return null; // served by a redirect (its destination is verified by the config check)
     } else {
       const other = byLower.get(target.toLowerCase());
       check.error(f.rel, text, index, 'broken-link', other
-        ? `"${raw}" -> site/${target} differs in case from site/${other} (SWA paths are case-sensitive)`
+        ? `"${raw}" -> site/${target} differs in case from site/${other} (Firebase Hosting paths are case-sensitive)`
         : `"${raw}" -> site/${target} does not exist`);
       return null;
     }
@@ -645,13 +674,13 @@ function checkPaths() {
   for (const f of files) {
     const base = posix.basename(f.rel).toLowerCase();
     if (f.symlink) c.error(f.rel, null, null, 'symlink', 'symbolic link (not deployed reliably); copy the file instead');
-    if (/[A-Z]/.test(f.rel)) c.error(f.rel, null, null, 'uppercase', 'uppercase letters in path (SWA paths are case-sensitive; use lowercase)');
+    if (/[A-Z]/.test(f.rel)) c.error(f.rel, null, null, 'uppercase', 'uppercase letters in path (Firebase Hosting paths are case-sensitive; use lowercase)');
     else if (!/^[a-z0-9._\-/]+$/.test(f.rel)) c.error(f.rel, null, null, 'unsafe-path', 'use only a-z 0-9 . _ - in file and folder names');
     if (JUNK_FILES.has(base)) c.error(f.rel, null, null, 'junk-file', 'OS junk file');
     else if (BUILD_MANIFESTS.has(base) || base.endsWith('.csproj')) {
-      c.error(f.rel, null, null, 'build-manifest', 'build manifest in site/ (the SWA builder would try to build the folder)');
+      c.error(f.rel, null, null, 'build-manifest', 'build manifest in site/ (the folder is published as it is; keep tooling outside it)');
     } else if (/\.(?:br|gz)$/.test(base)) {
-      c.error(f.rel, null, null, 'precompressed', 'precompressed copy (SWA may serve it in place of the original)');
+      c.error(f.rel, null, null, 'precompressed', 'precompressed copy (Firebase Hosting compresses on its own)');
     } else if (f.rel.split('/').some((seg) => seg.startsWith('.') && seg !== '.well-known')) {
       c.error(f.rel, null, null, 'dotfile', 'hidden file or folder in site/');
     } else if (!f.symlink && !DEPLOYABLE_EXT.has(f.ext)) {
@@ -1005,12 +1034,11 @@ function checkLinks() {
 }
 
 // ---------------------------------------------------------------------------
-// 5. staticwebapp.config.json
+// 5. firebase.json (at the repository root, next to site/)
 // ---------------------------------------------------------------------------
 
-const CONFIG_KEYS = new Set(['routes', 'navigationFallback', 'responseOverrides', 'mimeTypes', 'globalHeaders',
-  'auth', 'networking', 'forwardingGateway', 'platform', 'trailingSlash']);
-const ROUTE_KEYS = new Set(['route', 'methods', 'allowedRoles', 'headers', 'redirect', 'statusCode', 'rewrite']);
+const HOSTING_KEYS = new Set(['public', 'ignore', 'redirects', 'rewrites', 'headers', 'cleanUrls', 'trailingSlash',
+  'appAssociation', 'i18n', 'site', 'target']);
 const REQUIRED_HEADERS = {
   'x-content-type-options': /^nosniff$/i,
   'referrer-policy': /\S/,
@@ -1018,6 +1046,7 @@ const REQUIRED_HEADERS = {
   'cross-origin-opener-policy': /^same-origin$/i,
   'x-frame-options': /^deny$/i,
 };
+// Firebase Hosting picks the Content-Type from the extension; these need one spelled out.
 const REQUIRED_MIME = ['.luau', '.md', '.txt'];
 // SPEC section 3. The site needs every directive: e.g. without connect-src 'self' the
 // resume and obby fetches fall back to default-src 'none' and fail; without img-src every
@@ -1069,129 +1098,106 @@ function checkCspPolicy(c, text, value, where) {
 
 function checkConfig() {
   const c = new Check(5, `Config: ${CONFIG_FILE} is valid and sound`);
-  const f = byRel.get(CONFIG_FILE);
-  if (!f) {
-    c.error(CONFIG_FILE, null, null, 'missing', 'config file is missing');
+  const text = configText;
+  if (text == null) {
+    c.error(CONFIG_FILE, null, null, 'missing', 'config file is missing (it belongs at the repository root)');
     return c;
   }
-  const text = f.text;
   const at = (needle) => Math.max(0, text.indexOf(needle));
-  if (f.size > CONFIG_MAX) c.error(CONFIG_FILE, null, null, 'too-large', `${fmtSize(f.size)} exceeds the 20 KB platform limit`);
   if (configError) {
     c.error(CONFIG_FILE, null, null, 'json', `does not parse: ${configError}`);
     return c;
   }
-  if (!config || typeof config !== 'object' || Array.isArray(config)) {
-    c.error(CONFIG_FILE, null, null, 'json', 'top level must be an object');
+  if (!hosting) {
+    c.error(CONFIG_FILE, null, null, 'hosting', '"hosting" must be one object (a single site)');
     return c;
   }
-  for (const k of Object.keys(config)) if (!CONFIG_KEYS.has(k)) c.error(CONFIG_FILE, text, at(`"${k}"`), 'unknown-key', `unknown top-level key "${k}"`);
-  if ('navigationFallback' in config) {
-    c.error(CONFIG_FILE, text, at('"navigationFallback"'), 'navigation-fallback', 'navigationFallback turns every missing URL into a 200 "soft 404"; remove it');
+  for (const k of Object.keys(hosting)) if (!HOSTING_KEYS.has(k)) c.error(CONFIG_FILE, text, at(`"${k}"`), 'unknown-key', `unknown hosting key "${k}"`);
+  if (hosting.public !== 'site') c.error(CONFIG_FILE, text, at('"public"'), 'public', '"public" must be "site": that is the folder these checks read');
+  if ('rewrites' in hosting) {
+    c.error(CONFIG_FILE, text, at('"rewrites"'), 'rewrites', 'rewrites can turn a missing URL into a 200 "soft 404"; this site has none (site/404.html is served for missing pages)');
   }
-  if (config.trailingSlash != null && !['always', 'never', 'auto'].includes(config.trailingSlash)) {
-    c.error(CONFIG_FILE, text, at('"trailingSlash"'), 'trailing-slash', 'trailingSlash must be always, never or auto');
-  }
+  if (hosting.cleanUrls) c.warn(CONFIG_FILE, text, at('"cleanUrls"'), 'clean-urls', 'cleanUrls redirects every .html link on the site; the pages link to .html files on purpose');
+  if (!fileSet.has('404.html')) c.error(CONFIG_FILE, null, null, 'not-found-page', 'site/404.html is missing (Firebase Hosting serves it for unknown URLs)');
 
-  // Routes
-  const list = config.routes ?? [];
-  if (!Array.isArray(list)) c.error(CONFIG_FILE, text, at('"routes"'), 'routes', 'routes must be an array');
+  // Redirects
+  const list = hosting.redirects ?? [];
+  if (!Array.isArray(list)) c.error(CONFIG_FILE, text, at('"redirects"'), 'redirects', 'redirects must be an array');
   const seen = new Map();
   (Array.isArray(list) ? list : []).forEach((r, i) => {
-    const where = `routes[${i}]`;
-    if (!r || typeof r !== 'object' || typeof r.route !== 'string') {
-      c.error(CONFIG_FILE, null, null, 'routes', `${where} needs a "route" string`);
+    const where = `redirects[${i}]`;
+    if (!r || typeof r.source !== 'string' || typeof r.destination !== 'string') {
+      c.error(CONFIG_FILE, null, null, 'redirects', `${where} needs "source" and "destination" strings`);
       return;
     }
-    const idx = at(`"${r.route}"`);
-    for (const k of Object.keys(r)) if (!ROUTE_KEYS.has(k)) c.error(CONFIG_FILE, text, idx, 'routes', `${where}: unknown key "${k}"`);
-    if (!r.route.startsWith('/')) c.error(CONFIG_FILE, text, idx, 'routes', `${where}: route must start with "/"`);
-    const star = r.route.indexOf('*');
-    if (star !== -1 && (r.route.indexOf('/', star) !== -1 || !/^\*(?:\.[\w-]+|\.\{[\w-]+(?:,[\w-]+)*\})?$/.test(r.route.slice(star)))) {
-      c.error(CONFIG_FILE, text, idx, 'routes', `${where}: "${r.route}" wildcards are only supported at the end of a path`);
+    const idx = at(`"${r.source}"`);
+    if (!r.source.startsWith('/')) c.error(CONFIG_FILE, text, idx, 'redirects', `${where}: source must start with "/"`);
+    if (![301, 302].includes(r.type)) c.error(CONFIG_FILE, text, idx, 'redirects', `${where}: type must be 301 or 302`);
+    if (seen.has(r.source)) c.error(CONFIG_FILE, text, idx, 'duplicate-redirect', `${where} duplicates redirects[${seen.get(r.source)}] and can never match`);
+    else seen.set(r.source, i);
+    if (!/[*{(?]/.test(r.source)) {
+      const shadow = list.slice(0, i).findIndex((e) => e && typeof e.source === 'string' && e.source !== r.source && globMatches(e.source, r.source));
+      if (shadow !== -1) c.warn(CONFIG_FILE, text, idx, 'shadowed-redirect', `${where} is shadowed by redirects[${shadow}] ("${list[shadow].source}") and never matches`);
+      if (fileSet.has(r.source.slice(1))) c.warn(CONFIG_FILE, text, idx, 'redirect-over-file', `${where}: site${r.source} exists, and a redirect takes priority over it`);
     }
-    if (r.redirect && r.rewrite) c.error(CONFIG_FILE, text, idx, 'routes', `${where}: redirect and rewrite cannot be combined`);
-    if (r.redirect && r.statusCode != null && ![301, 302, 307, 308].includes(r.statusCode)) {
-      c.error(CONFIG_FILE, text, idx, 'routes', `${where}: redirect statusCode must be 301, 302, 307 or 308`);
+    if (/^https?:\/\//i.test(r.destination)) return; // external redirect
+    const ref = classify('', r.destination);
+    if (ref.kind !== 'local' || ref.relative) {
+      c.error(CONFIG_FILE, text, idx, 'redirect-target', `${where}: destination "${r.destination}" must be root-relative`);
+      return;
     }
-    const key = `${r.route} ${(r.methods || []).join(',')}`;
-    if (seen.has(key)) c.error(CONFIG_FILE, text, idx, 'duplicate-route', `${where} duplicates routes[${seen.get(key)}] and can never match`);
-    else seen.set(key, i);
-    if (star === -1) {
-      const shadow = list.slice(0, i).findIndex((e) => e && typeof e.route === 'string' && e.route.includes('*') && !e.methods && routeMatches(e.route, r.route));
-      if (shadow !== -1) c.warn(CONFIG_FILE, text, idx, 'shadowed-route', `${where} is shadowed by routes[${shadow}] ("${list[shadow].route}") and never matches`);
-    }
-    for (const [kind, target] of [['redirect', r.redirect], ['rewrite', r.rewrite]]) {
-      if (typeof target !== 'string') continue;
-      if (/^https?:\/\//i.test(target)) continue; // external redirect
-      const ref = classify('', target);
-      if (ref.kind !== 'local' || ref.relative) {
-        c.error(CONFIG_FILE, text, idx, 'route-target', `${where}: ${kind} target "${target}" must be root-relative`);
-        continue;
+    const file = ref.isDir ? (ref.rel ? `${ref.rel}/index.html` : 'index.html') : ref.rel;
+    if (!fileSet.has(file)) c.error(CONFIG_FILE, text, idx, 'redirect-target', `${where}: destination "${r.destination}" -> site/${file} does not exist`);
+    // Follow redirects from the destination to catch chains and loops.
+    const visited = [r.source];
+    let path = r.destination.replace(/[?#].*$/, '');
+    for (let hop = 0; hop < 10; hop++) {
+      const next = firstRedirect(path);
+      if (!next || /^https?:/i.test(next.destination)) break;
+      if (visited.includes(next.source)) {
+        c.error(CONFIG_FILE, text, idx, 'redirect-loop', `${where}: redirect loop via "${next.source}"`);
+        break;
       }
-      const file = ref.isDir ? (ref.rel ? `${ref.rel}/index.html` : 'index.html') : ref.rel;
-      if (!fileSet.has(file)) c.error(CONFIG_FILE, text, idx, 'route-target', `${where}: ${kind} target "${target}" -> site/${file} does not exist`);
-      // Follow redirects from the target to catch chains and loops.
-      if (kind === 'redirect') {
-        const visited = [r.route];
-        let path = target.replace(/[?#].*$/, '');
-        for (let hop = 0; hop < 10; hop++) {
-          const next = routes.find((e) => routeMatches(e.route, path) || routeMatches(e.route.toLowerCase(), path.toLowerCase()));
-          if (!next?.redirect || /^https?:/i.test(next.redirect)) break;
-          if (visited.includes(next.route)) {
-            c.error(CONFIG_FILE, text, idx, 'redirect-loop', `${where}: redirect loop via "${next.route}"`);
-            break;
-          }
-          c.warn(CONFIG_FILE, text, idx, 'redirect-chain', `${where}: target "${path}" redirects again via "${next.route}"`);
-          visited.push(next.route);
-          path = next.redirect.replace(/[?#].*$/, '');
-        }
-      }
-    }
-    // A route header replaces the global one for that route; an empty value removes it.
-    for (const [name, value] of Object.entries(r.headers || {})) {
-      const key = name.toLowerCase();
-      const v = String(value ?? '').trim();
-      if (key !== 'content-security-policy' && !Object.hasOwn(REQUIRED_HEADERS, key)) continue;
-      if (!v) c.error(CONFIG_FILE, text, idx, 'headers', `${where}: empty ${name} header removes the global one on this route`);
-      else if (key === 'content-security-policy') checkCspPolicy(c, text, v, where);
-      else if (!REQUIRED_HEADERS[key].test(v)) c.error(CONFIG_FILE, text, idx, 'headers', `${where}: unexpected ${name}: "${v}"`);
+      c.warn(CONFIG_FILE, text, idx, 'redirect-chain', `${where}: destination "${path}" redirects again via "${next.source}"`);
+      visited.push(next.source);
+      path = next.destination.replace(/[?#].*$/, '');
     }
   });
 
-  // Response overrides
-  const overrides = config.responseOverrides ?? {};
-  for (const [code, o] of Object.entries(overrides)) {
-    if (!['400', '401', '403', '404'].includes(code)) c.error(CONFIG_FILE, text, at(`"${code}"`), 'overrides', `responseOverrides cannot override ${code}`);
-    const target = o?.rewrite ?? o?.redirect;
-    if (typeof target === 'string' && target.startsWith('/')) {
-      const ref = classify('', target);
-      const file = ref.isDir ? `${ref.rel ? `${ref.rel}/` : ''}index.html` : ref.rel;
-      if (!fileSet.has(file)) c.error(CONFIG_FILE, text, at(`"${code}"`), 'overrides', `responseOverrides ${code} -> site/${file} does not exist`);
+  // Headers: entries are { source: glob, headers: [{ key, value }] }; a later match overrides an earlier one.
+  const entries = Array.isArray(hosting.headers) ? hosting.headers.filter((h) => h && typeof h.source === 'string' && Array.isArray(h.headers)) : [];
+  if (hosting.headers != null && entries.length !== hosting.headers.length) c.error(CONFIG_FILE, text, at('"headers"'), 'headers', 'every headers entry needs a "source" glob and a "headers" list');
+  const pairs = (entry) => entry.headers.filter((h) => h && typeof h.key === 'string').map((h) => [h.key.toLowerCase(), String(h.value ?? '').trim()]);
+  const everywhere = entries.filter((e) => e.source === '**');
+  const global = new Map(everywhere.flatMap(pairs));
+  if (!everywhere.length) c.error(CONFIG_FILE, null, null, 'headers', 'no headers entry with "source": "**" (the security headers must cover every URL)');
+  const csp = global.get('content-security-policy');
+  if (!csp) c.error(CONFIG_FILE, null, null, 'csp', 'the "**" headers entry has no Content-Security-Policy');
+  else checkCspPolicy(c, text, csp, 'headers "**"');
+  for (const [name, re] of Object.entries(REQUIRED_HEADERS)) {
+    if (!global.has(name)) c.error(CONFIG_FILE, null, null, 'headers', `the "**" headers entry is missing ${name}`);
+    else if (!re.test(global.get(name))) c.error(CONFIG_FILE, text, at(global.get(name)), 'headers', `unexpected ${name}: "${global.get(name)}"`);
+  }
+  // A narrower entry must not weaken or blank a security header.
+  for (const e of entries.filter((x) => x.source !== '**')) {
+    for (const [key, value] of pairs(e)) {
+      if (key !== 'content-security-policy' && !Object.hasOwn(REQUIRED_HEADERS, key)) continue;
+      const where = `headers "${e.source}"`;
+      if (!value) c.error(CONFIG_FILE, text, at(`"${e.source}"`), 'headers', `${where}: empty ${key} replaces the global one`);
+      else if (key === 'content-security-policy') checkCspPolicy(c, text, value, where);
+      else if (!REQUIRED_HEADERS[key].test(value)) c.error(CONFIG_FILE, text, at(`"${e.source}"`), 'headers', `${where}: unexpected ${key}: "${value}"`);
     }
   }
-  if (!overrides['404']?.rewrite) c.error(CONFIG_FILE, null, null, 'overrides', 'responseOverrides needs "404": { "rewrite": "/404.html" }');
 
-  // Global headers
-  const headers = Object.fromEntries(Object.entries(config.globalHeaders ?? {}).map(([k, v]) => [k.toLowerCase(), String(v)]));
-  const csp = headers['content-security-policy'];
-  if (!csp) c.error(CONFIG_FILE, null, null, 'csp', 'globalHeaders has no Content-Security-Policy');
-  else checkCspPolicy(c, text, csp, 'globalHeaders');
-  for (const [name, re] of Object.entries(REQUIRED_HEADERS)) {
-    if (!headers[name]) c.error(CONFIG_FILE, null, null, 'headers', `globalHeaders is missing ${name}`);
-    else if (!re.test(headers[name].trim())) c.error(CONFIG_FILE, text, at(headers[name]), 'headers', `unexpected ${name}: "${headers[name]}"`);
+  // Content types
+  for (const ext of REQUIRED_MIME) {
+    const type = entries.filter((e) => globMatches(e.source, `/folder/file${ext}`) && globMatches(e.source, `/file${ext}`))
+      .flatMap(pairs).filter(([key]) => key === 'content-type').map(([, value]) => value).pop();
+    if (!type) c.error(CONFIG_FILE, null, null, 'mime', `no headers entry sets a Content-Type for ${ext} files`);
+    else if (!/^[a-z]+\/[a-z0-9.+-]+(?:;\s*charset=[a-z0-9-]+)?$/i.test(type)) c.error(CONFIG_FILE, text, at(type), 'mime', `"${type}" is not a valid media type`);
   }
 
-  // MIME types
-  const mime = config.mimeTypes ?? {};
-  for (const [ext, type] of Object.entries(mime)) {
-    if (!ext.startsWith('.')) c.error(CONFIG_FILE, text, at(`"${ext}"`), 'mime', `mimeTypes key "${ext}" must start with "."`);
-    if (!/^[a-z]+\/[a-z0-9.+-]+(?:;\s*charset=[a-z0-9-]+)?$/i.test(String(type))) c.error(CONFIG_FILE, text, at(`"${ext}"`), 'mime', `"${type}" is not a valid media type`);
-  }
-  for (const ext of REQUIRED_MIME) if (!mime[ext]) c.error(CONFIG_FILE, null, null, 'mime', `mimeTypes has no entry for ${ext}`);
-
-  const redirects = routes.filter((r) => r.redirect).length;
-  c.stats = `${fmtSize(f.size)} of 20 KB, ${routes.length} routes (${redirects} redirects), ${Object.keys(headers).length} global headers`;
+  c.stats = `${fmtSize(Buffer.byteLength(text))}, ${redirects.length} redirects, ${entries.length} header rules (${global.size} on every URL)`;
   return c;
 }
 
@@ -1304,7 +1310,7 @@ function checkSyntax() {
 // ---------------------------------------------------------------------------
 
 function checkClaims() {
-  const c = new Check(9, 'Claims: no grades, transfer targets, weekly hours, follower numbers, A.S. or graduation claims');
+  const c = new Check(9, 'Claims: no grades, transfer targets, weekly hours, follower numbers, dated plans, A.S. or graduation claims');
   const short = (s) => (s.length > 60 ? `${s.slice(0, 57)}...` : s).replace(/\s+/g, ' ');
   const find = (text) => CLAIMS.flatMap((r) => findRule(r, text).map((h) => ({ r, ...h })));
   for (const f of textFiles) {

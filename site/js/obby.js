@@ -1,5 +1,5 @@
 /**
- * obby.js: Mei's Mini Obby, a small obstacle course on a text grid (ES module,
+ * obby.js: Mini Obby, a small obstacle course on a text grid (ES module,
  * lazy-loaded by term.js). Luau-flavored, written in JavaScript: the course is a
  * Luau data module (/obby/obbycourse.luau), read at runtime by js/luau-table.js.
  *
@@ -40,7 +40,7 @@ const AIR = 0, SOLID = 1, KILL = 2, CONVEYOR = 3, JUMPPAD = 4, CHECKPOINT = 5, F
 
 const KINDS = { solid: SOLID, kill: KILL, conveyor: CONVEYOR, jumppad: JUMPPAD, checkpoint: CHECKPOINT, finish: FINISH };
 const CELL_CLASS = ['c-air', 'c-solid', 'c-kill', 'c-conv', 'c-jump', 'c-check', 'c-finish'];
-const KIND_LABEL = ['air', 'wall', 'lava', 'conveyor', 'jump pad', 'checkpoint', 'finish']; // for the legend
+const KIND_LABEL = ['air', 'wall', 'lava', 'belt', 'jump pad', 'checkpoint', 'finish']; // for the legend
 const AIR_CHARS = new Set(['.', ' ']);
 
 /** No keys pressed. */
@@ -331,6 +331,28 @@ function setText(node, text) {
   if (node.textContent !== text) node.textContent = text;
 }
 
+/** How high a jump rises and how many cells it carries you on level ground, from the physics above. */
+function jumpReach() {
+  let height = 0;
+  let rise = 0;
+  let across = 0;
+  let vy = JUMP_VY;
+  do {
+    height += vy;
+    rise = Math.max(rise, height);
+    vy = Math.max(vy - 1, -MAX_FALL);
+    across++;
+  } while (height > 0);
+  return { rise, across };
+}
+
+/** What a tile does, for the legend: belts say which way they push, pads how high they launch. */
+function tileLabel(tile) {
+  if (tile.code === CONVEYOR) return `belt, pushes ${tile.dir < 0 ? 'left' : 'right'}`;
+  if (tile.code === JUMPPAD) return `jump pad, launches you ${(tile.launch * (tile.launch + 1)) / 2} up`;
+  return KIND_LABEL[tile.code];
+}
+
 /** Legend glyphs for one kind: "1-4" for a run of 3+ consecutive digits, else "< >". */
 function glyphs(chars) {
   const digits = chars.every((c, i) => /[0-9]/.test(c) && (i === 0 || c.charCodeAt(0) === chars[i - 1].charCodeAt(0) + 1));
@@ -448,21 +470,24 @@ class Game {
   }
 
   /**
-   * One line under the field that says what each glyph is, colored like the field:
-   * "@ you · # wall · ^ lava · < > conveyor · J jump pad · 1-4 checkpoint · F finish".
-   * aria-hidden like the field it explains.
+   * The key under the field: what each glyph is and does, drawn like the field, e.g.
+   * "@ you · # wall · ^ lava · < belt, pushes left · J jump pad, launches you 10 up",
+   * then how far a jump goes. aria-hidden like the field it explains.
    */
   legend() {
     const { el } = this.term;
-    const byKind = new Map(); // kind -> chars, in file order
+    const byLabel = new Map(); // label -> { code, chars }, in file order
     for (const t of this.world.tiles) {
-      if (!byKind.has(t.code)) byKind.set(t.code, []);
-      byKind.get(t.code).push(t.char);
+      const label = tileLabel(t);
+      if (!byLabel.has(label)) byLabel.set(label, { code: t.code, chars: [] });
+      byLabel.get(label).chars.push(t.char);
     }
     const parts = [el('span', { class: 'c-player', text: '@' }), ' you'];
-    for (const [code, chars] of byKind) {
-      parts.push(' · ', el('span', { class: CELL_CLASS[code], text: glyphs(chars) }), ` ${KIND_LABEL[code]}`);
+    for (const [label, { code, chars }] of byLabel) {
+      parts.push(' · ', el('span', { class: CELL_CLASS[code], text: glyphs(chars) }), ` ${label}`);
     }
+    const { rise, across } = jumpReach();
+    parts.push(el('br'), `A jump rises ${rise} cells and carries you ${across} cells across. Lava and falling send you back to your checkpoint.`);
     return el('p', { class: 'hint obby-legend', attrs: { 'aria-hidden': 'true' } }, ...parts);
   }
 
@@ -497,14 +522,18 @@ class Game {
     const stage = w.stages[s.stage - 1];
     setText(this.hint, `Stage ${stage.id} · ${stage.name}${stage.hint ? `: ${stage.hint}` : ''}`);
 
-    // Camera: centered on the player when the course is wider than the view.
+    // Camera, when the course is wider than the view: the player sits a third of the
+    // way in, so two thirds of the view shows what is ahead (the course runs left to right).
     const maxCam = w.width - this.viewCols;
-    const camX = maxCam > 0 ? Math.max(0, Math.min(maxCam, s.x - (this.viewCols >> 1))) : 0;
+    const camX = maxCam > 0 ? Math.max(0, Math.min(maxCam, s.x - Math.floor(this.viewCols / 3))) : 0;
     if (camX !== this.camX) {
       this.camX = camX;
       this.rowKeys = [];
     }
     const mark = s.lastDeath && s.tick - s.lastDeath.tick < DEATH_MARK_TICKS ? s.lastDeath : null;
+    // Belts show their rhythm: every third cell is a gap that moves one cell each time the
+    // belt pushes, in the direction it pushes. Static under reduced motion.
+    const beltMoves = !this.term.reducedMotion();
 
     for (let y = 0; y < w.height; y++) {
       let chars = '';
@@ -521,6 +550,11 @@ class Game {
         } else {
           const code = w.cells[x + y * w.width];
           ch = code === AIR ? '·' : w.rows[y][x];
+          if (code === CONVEYOR && beltMoves) {
+            const tile = w.tileAt[x + y * w.width];
+            const shift = Math.floor(s.tick / tile.period) * tile.dir;
+            if ((((x - shift) % 3) + 3) % 3 === 0) ch = '-';
+          }
           kind = String(code);
         }
         chars += ch;
@@ -773,7 +807,7 @@ class Game {
     this.leave('Finished!',
       el('p', { class: 'out--ok' }, `You finished ${w.name} in ${seconds(s.tick)} with ${plural(s.deaths, 'death')}.`),
       table,
-      el('p', {}, 'Built by Mei · course data is a real Luau module: ', cmdButton(term, 'cat obby/obbycourse.luau')),
+      el('p', {}, 'Built by meiorz · course data is a real Luau module: ', cmdButton(term, 'cat obby/obbycourse.luau')),
       el('p', { class: 'hint' }, 'Play again: ', cmdButton(term, 'obby')));
     term.status(`Finished in ${(s.tick / TICK_HZ).toFixed(1)} seconds with ${plural(s.deaths, 'death')}.`);
   }

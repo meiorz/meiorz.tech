@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content">
+  <title>@string/meta_title</title>
+  <meta name="description" content="@string/meta_description">
+  <link rel="canonical" href="https://www.meiorz.tech/">
+  <link rel="alternate" type="text/plain" href="/resume.txt">
+  <link rel="alternate" type="text/markdown" href="/index.md">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="@string/meta_title">
+  <meta property="og:description" content="@string/meta_og_description">
+  <meta property="og:url" content="https://www.meiorz.tech/">
+  <meta property="og:image" content="https://www.meiorz.tech/img/og.png">
+  <meta property="og:image:alt" content="@string/meta_og_image_alt">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <script src="/js/theme.js"></script>
+  <link rel="stylesheet" href="/css/term.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "url": "https://www.meiorz.tech/",
+    "name": "@string/site_name",
+    "dateModified": "2026-10-03",
+    "mainEntity": {
+      "@type": "Person",
+      "@id": "https://www.meiorz.tech/#me",
+      "name": "@string/site_name",
+      "url": "https://www.meiorz.tech/",
+      "email": "mailto:business@meiorz.tech",
+      "jobTitle": "@string/meta_job_title",
+      "description": "@string/meta_person_description",
+      "homeLocation": { "@type": "Place", "name": "@string/contact_location" },
+      "affiliation": { "@type": "CollegeOrUniversity", "name": "City College of San Francisco" },
+      "knowsAbout": ["C++", "Java", "Python", "JavaScript", "TypeScript", "SQL", "Kotlin", "Bash/Shell", "MIPS Assembly", "Linux", "Docker", "Git/GitHub", "GitHub Actions (CI/CD)", "Automated unit and integration testing", "Debugging", "CLI development", "Code review", "ML fundamentals", "NLP", "Transformer models (Google BERT)", "LLM-assisted development workflows"],
+      "knowsLanguage": [
+        { "@type": "Language", "name": "English", "alternateName": "en" },
+        { "@type": "Language", "name": "Japanese", "alternateName": "ja" },
+        { "@type": "Language", "name": "American Sign Language", "alternateName": "ase" }
+      ],
+      "sameAs": ["https://github.com/meiorz", "https://www.linkedin.com/in/mei-o-525a0b227"]
+    }
+  }
+  </script>
+  <script type="module" src="/js/term.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">@string/skip_to_content</a>
+  <a class="skip js-only" href="#cmd">@string/skip_to_prompt</a>
+  <header class="site-header">
+    <a class="wordmark" href="/">@string/wordmark</a>
+    <nav class="site-nav" aria-label="@string/nav_label">
+      <a href="#projects">@string/nav_projects</a>
+      <a href="#skills">@string/nav_skills</a>
+      <a href="#education">@string/nav_education</a>
+      <a href="#experience">@string/nav_experience</a>
+      <a href="#contact">@string/nav_contact</a>
+      <a href="#play">@string/nav_play</a>
+    </nav>
+    <button type="button" id="theme-toggle" class="js-only"></button>
+  </header>
+  <main id="main" class="page">
+
+    <section id="intro" class="block hero" aria-labelledby="h-intro">
+      <p class="eyebrow">@string/intro_eyebrow</p>
+      <h1 id="h-intro" tabindex="-1"><span class="typed">@string/intro_headline</span></h1>
+      <p class="lede">@string/intro_lede</p>
+      <p>@string/intro_projects</p>
+      <p class="seeking">@string/intro_seeking</p>
+      <p class="actions">
+        <a class="button button--primary" href="mailto:business@meiorz.tech">@string/intro_action_email</a>
+        <a class="button" href="/resume.txt">@string/intro_action_resume</a>
+        <a class="button" href="https://github.com/meiorz">@string/intro_action_github</a>
+      </p>
+    </section>
+
+    <section id="projects" class="block" aria-labelledby="h-projects">
+      <h2 id="h-projects" tabindex="-1">@string/projects_title</h2>
+      <p>@string/projects_intro</p>
+
+      <article class="project" id="proj-lull">
+        <h3>@string/project_lull_title</h3>
+        <p>@string/project_lull_summary</p>
+        <ul>
+          @array/project_lull_points
+        </ul>
+        <p class="meta">@string/project_lull_meta</p>
+      </article>
+
+      <article class="project" id="proj-hopout">
+        <h3>@string/project_hopout_title</h3>
+        <p>@string/project_hopout_summary</p>
+        <ul>
+          @array/project_hopout_points
+        </ul>
+        <p class="meta">@string/project_hopout_meta</p>
+      </article>
+
+      <article class="project" id="proj-bert-sentiment">
+        <h3>@string/project_bert_title</h3>
+        <p>@string/project_bert_summary</p>
+        <ul>
+          @array/project_bert_points
+        </ul>
+        <p class="meta">@string/project_bert_meta</p>
+      </article>
+    </section>
+
+    <section id="skills" class="block" aria-labelledby="h-skills">
+      <h2 id="h-skills" tabindex="-1">@string/skills_title</h2>
+      <dl class="kv">
+        <dt>@string/skills_languages_label</dt>
+        <dd>@string/skills_languages</dd>
+        <dt>@string/skills_systems_label</dt>
+        <dd>@string/skills_systems</dd>
+        <dt>@string/skills_tooling_label</dt>
+        <dd>@string/skills_tooling</dd>
+        <dt>@string/skills_ai_label</dt>
+        <dd>@string/skills_ai</dd>
+        <dt>@string/skills_spoken_label</dt>
+        <dd>@string/skills_spoken</dd>
+      </dl>
+    </section>
+
+    <section id="education" class="block" aria-labelledby="h-education">
+      <h2 id="h-education" tabindex="-1">@string/education_title</h2>
+      <p>@string/education_summary</p>
+      <ul class="checklist">
+        <li class="done"><span class="box" aria-hidden="true">✓</span><span><span class="visually-hidden">@string/education_done_label </span>@string/education_course_cs110c</span></li>
+        <li class="done"><span class="box" aria-hidden="true">✓</span><span><span class="visually-hidden">@string/education_done_label </span>@string/education_course_cs111c</span></li>
+        <li class="done"><span class="box" aria-hidden="true">✓</span><span><span class="visually-hidden">@string/education_done_label </span>@string/education_course_cs270</span></li>
+      </ul>
+      <p>@string/education_other</p>
+      <p>@string/education_inspirit</p>
+      <h3>@string/education_certifications_title</h3>
+      <ul>
+        @array/education_certifications
+      </ul>
+    </section>
+
+    <section id="experience" class="block" aria-labelledby="h-experience">
+      <h2 id="h-experience" tabindex="-1">@string/experience_title</h2>
+      <h3>@string/experience_tutor_title</h3>
+      <p class="meta">@string/experience_tutor_meta</p>
+      <ul>
+        @array/experience_tutor_points
+      </ul>
+      <h3>@string/experience_inspirit_title</h3>
+      <p class="meta">@string/experience_inspirit_meta</p>
+      <ul>
+        @array/experience_inspirit_points
+      </ul>
+    </section>
+
+    <section id="contact" class="block" aria-labelledby="h-contact">
+      <h2 id="h-contact" tabindex="-1">@string/contact_title</h2>
+      <dl class="kv">
+        <dt>@string/contact_email_label</dt>
+        <dd><a href="mailto:business@meiorz.tech">@string/link_email</a></dd>
+        <dt>@string/contact_github_label</dt>
+        <dd><a href="https://github.com/meiorz" rel="me">@string/contact_github</a></dd>
+        <dt>@string/contact_linkedin_label</dt>
+        <dd><a href="https://www.linkedin.com/in/mei-o-525a0b227" rel="me">@string/contact_linkedin</a></dd>
+        <dt>@string/contact_resume_label</dt>
+        <dd><a href="/resume.txt">@string/footer_resume</a> @string/contact_resume_note</dd>
+        <dt>@string/contact_seeking_label</dt>
+        <dd>@string/contact_seeking</dd>
+        <dt>@string/contact_location_label</dt>
+        <dd>@string/contact_location</dd>
+      </dl>
+    </section>
+
+    <section id="play" class="block" aria-labelledby="h-play">
+      <h2 id="h-play" tabindex="-1">@string/play_title</h2>
+      <p>@string/play_intro <span class="nojs">@string/play_needs_js</span></p>
+      <h3>@string/play_obby_title</h3>
+      <p>@string/play_obby_body</p>
+      <p class="actions"><button type="button" class="js-only run" data-cmd="obby">@string/play_obby_run</button> <a href="/obby/obbycourse.luau">@string/play_obby_source</a></p>
+      <h3>@string/play_cli_title</h3>
+      <p>@string/play_cli_body</p>
+      <p class="actions"><button type="button" class="js-only run" data-cmd="meiorz-cli">@string/play_cli_run</button></p>
+    </section>
+
+    <section id="terminal" class="terminal js-only" aria-label="@string/terminal_label">
+      <div id="log" role="log" aria-live="polite" aria-label="@string/terminal_output_label"></div>
+      <form id="prompt" class="prompt" hidden autocomplete="off">
+        <label for="cmd" class="prompt__label"><span class="ps1">@string/term_ps1</span><span class="visually-hidden"> @string/terminal_command_label</span></label>
+        <input id="cmd" name="cmd" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="send" aria-describedby="cmd-help" aria-keyshortcuts="Control+L">
+        <p id="cmd-help" class="hint">@string/terminal_hint</p>
+      </form>
+    </section>
+    <p id="status" role="status" class="visually-hidden"></p>
+  </main>
+  <a id="to-top" class="to-top js-only" href="#top" aria-label="@string/to_top" title="@string/to_top"><span aria-hidden="true">↑</span></a>
+  <footer class="footer">
+    <ul>
+      <li><a href="mailto:business@meiorz.tech">@string/link_email</a></li>
+      <li><a href="https://github.com/meiorz">@string/link_github</a></li>
+      <li><a href="https://www.linkedin.com/in/mei-o-525a0b227">@string/link_linkedin</a></li>
+      <li><a href="/resume.txt">@string/footer_resume</a></li>
+      <li><a href="/llms.txt">@string/footer_llms</a></li>
+      <li><a href="/archive/">@string/footer_archive</a></li>
+    </ul>
+    <p>@string/footer_note</p>
+  </footer>
+</body>
+</html>

@@ -1,38 +1,36 @@
-# Mei Okubo
+# meiorz
 
-> Computer science transfer student at City College of San Francisco (completing IGETC and CS major-preparation coursework for a junior transfer, target Fall 2028), based in San Francisco, CA. Currently seeking Summer 2027 software engineering internships. Contact: business@meiorz.tech
+> Computer science student at City College of San Francisco and Inspirit AI Scholar, based in San Francisco, CA. Seeking a software engineering internship for summer 2027. Contact: business@meiorz.tech
 
-www.meiorz.tech is a terminal-style personal site. The home page is plain HTML that works without JavaScript; the same content is available as markdown, and the resume as plain text, at the links below.
+www.meiorz.tech is a personal site. The home page is plain HTML that works without JavaScript; the same content is available as markdown, and the resume as plain text, at the links below.
 
 Summary:
 
-- Main project: BlobGuard, an AI-assisted (agentic) engineering project on a real problem, cloud storage security: an MIT-licensed, open-source object-storage security posture scanner (Python command-line tool). Read-only: control-plane APIs only, never object contents. Every finding carries evidence and a remediation, and checks that cannot be confirmed report `error`, never `pass`. The Azure adapter is in progress (initial checks landing); AWS and GCP adapters are planned. Mei owns and directs it; it is built with an AI-assisted (agentic coding) workflow.
+- Lull: a Chrome extension (Manifest V3, JavaScript, no dependencies) that gives every website a soft, predictable dark theme, designed for autistic people and people with ADHD. No white flash, capped saturation (colors mapped in OKLCH), stopped animations, paused autoplay and frozen GIFs. No account, analytics, remote code or server. 138 checks run it in real Chrome.
+- HopOut: an MIT-licensed VS Code extension (TypeScript) that moves the cursor outside the nearest enclosing quote, bracket or paren, on `Tab` only where `Tab` has nothing better to do. Structure-aware scanning, multiple cursors, per-language pairs; unit tests plus integration tests that press real keys inside VS Code.
 - Coursework completed: CS 110C (Data Structures and Algorithms in C++), CS 111C (Data Structures and Algorithms in Java), CS 270 (Computer Architecture and Assembly, MIPS).
-- Experience: Computer Science Tutor / Teaching Assistant at City College of San Francisco since Sep 2024 (C++, Java, Python); ASL interpreter in STEM settings, working toward the CCSF ASL certificate (AMSL 2B), expected Fall 2027; Inspirit AI Ambassador and AI Scholar alum since Mar 2023.
-- Skills: C++, Java, Python, SQL, Kotlin, Bash/Shell, MIPS Assembly; Linux, Docker, Azure, Terraform; Git/GitHub, GitHub Actions (CI/CD), automated unit and integration testing, debugging, CLI development, code review; ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted development workflows.
+- Experience: Computer Science Tutor / Teaching Assistant at City College of San Francisco since Sep 2024 (C++, Java, Python; one or two students a week); Inspirit AI Ambassador and AI Scholar alum, Mar 2023 to Aug 2024.
+- Skills: C++, Java, Python, JavaScript, TypeScript, SQL, Kotlin, Bash/Shell, MIPS Assembly; Linux, Docker; Git/GitHub, GitHub Actions (CI/CD), automated unit and integration testing, debugging, CLI development, code review; ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted development workflows.
 - Certifications: AI Scholar, Inspirit AI (Apr 2022); Microsoft Certified: Azure AI Fundamentals, AI-900 (Oct 2021); Microsoft Certified: Azure Data Fundamentals, DP-900 (Aug 2021); Microsoft Certified: Azure Fundamentals, AZ-900 (Jul 2021); Microsoft 365 Certified: Fundamentals, MS-900 (Jun 2021).
-- Languages: English (fluent), Japanese (fluent), American Sign Language.
-- Also a VTuber (anime-style avatar persona), preparing a stream relaunch.
-- In progress: a creator automation app that schedules and cross-posts content for the VTuber relaunch through each platform's official APIs. Built in public.
-- Also in progress (details coming soon): an Android app (Kotlin), AI-assisted security research, and an agentic terminal CLI app.
+- Languages: English (fluent), Japanese (fluent), American Sign Language (limited to STEM communication).
 
 ## Profile
 
 - [Resume (plain text)](https://www.meiorz.tech/resume.txt): current resume
-- [Home page (markdown)](https://www.meiorz.tech/index.md): about, projects, skills, education, experience, streaming, play, contact
-- [Home page (HTML)](https://www.meiorz.tech/): the terminal-style site; all content is in the static HTML
+- [Home page (markdown)](https://www.meiorz.tech/index.md): projects, skills, education, experience, contact, play
+- [Home page (HTML)](https://www.meiorz.tech/): the site; all content is in the static HTML
 
 ## Projects
 
-- [BlobGuard](https://github.com/meiorz/blobguard): read-only object-storage security posture scanner (Python 3.12+, Terraform sandbox labs on Azure, GitHub Actions CI with automated tests); commands `scan`, `explain`, `list-checks`; JSON and Markdown reports; exit codes 0 clean, 1 failing finding, 2 bad usage, 3 could not run; built with an AI-assisted (agentic coding) workflow
-- [meiorz.tech](https://www.meiorz.tech/): this site; accessible (WCAG 2.2 AA target), light and dark themes, strict Content Security Policy, no trackers, static on Azure Static Web Apps, built with an AI-assisted (agentic coding) workflow
-- [Tweet sentiment classification with BERT](https://www.meiorz.tech/#projects): Inspirit AI Scholar project (Python, PyTorch); fine-tuned Google BERT on a labeled tweet corpus and presented the results and error analysis at Inspirit AI Demo Day
+- [Lull](https://github.com/meiorz/lull): Chrome extension that gives every website a soft, predictable dark theme with no white flash; designed for autistic people and people with ADHD; no dependencies, no analytics, 138 checks in real Chrome
+- [HopOut](https://github.com/meiorz/hopout): MIT-licensed VS Code extension (TypeScript) that moves the cursor outside the nearest enclosing quote, bracket or paren; structure-aware, multi-cursor, yields to snippets and inline AI completions
+- [Tweet sentiment classification with BERT](https://www.meiorz.tech/#projects): Inspirit AI Scholar project, spring 2022 (Python, PyTorch); fine-tuned Google BERT on a labeled tweet corpus and presented the results and error analysis at Inspirit AI Demo Day
 
 ## Contact
 
 - [Email](mailto:business@meiorz.tech): business@meiorz.tech
 - [GitHub](https://github.com/meiorz): meiorz
-- [LinkedIn](https://www.linkedin.com/in/mei-o-525a0b227): Mei Okubo
+- [LinkedIn](https://www.linkedin.com/in/mei-o-525a0b227): profile
 
 ## Optional
 

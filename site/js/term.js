@@ -2,12 +2,16 @@
  * term.js: the interactive shell for www.meiorz.tech (ES module, no dependencies).
  *
  * The page is a normal HTML document first: every section is already printed
- * as if its command had been typed. This module only enhances it: it reveals
- * the prompt (#prompt), runs commands, prints output into #log (role="log")
- * and lazy-loads the two programs (obby, meii). If anything here fails, the
- * static page keeps working and the prompt never appears.
+ * and reads fine on its own. This module only enhances it: it reveals the
+ * terminal (#terminal) and its prompt (#prompt), runs commands, prints output into #log (role="log")
+ * and lazy-loads the two programs (obby, meiorz-cli). If anything here fails, the
+ * static page keeps working and the terminal never appears.
  *
- * ===== API for lazy modules (js/obby.js, js/meii.js) =====
+ * User-facing text comes from string resources (res/values/strings.xml, built
+ * into ./strings.js): R.string.term_exit, stringResource(R.string.term_loading, name), and
+ * stringParts() when an argument is a DOM node.
+ *
+ * ===== API for lazy modules (js/obby.js, js/meiorz-cli.js) =====
  *
  *   export async function start(term, args) { ... }
  *
@@ -68,7 +72,7 @@
  *                                        returned promise is pending are queued.
  *     placeholder?: string, hint?: string | Node (replaces the hint under the
  *                        input; see setHint() for changing it later),
- *     promptClass?: string (extra class(es) on #prompt, e.g. 'meii-box'),
+ *     promptClass?: string (extra class(es) on #prompt, e.g. 'cli-box'),
  *     echo?: boolean     default true: the shell echoes the line with your ps1
  *                        just before onSubmit; false = you render it.
  *     onKeyDown?(e) -> boolean   sees every keydown in #cmd first (IME
@@ -89,7 +93,7 @@
  *                         Never write into #cmd-help directly.
  *   setPromptVisible(bool) Hides/shows #prompt, e.g. while a game pane has focus.
  *   clear()               Clears #log only, like `clear` or Ctrl+L.
- *   version               '1.1.0'
+ *   version               '1.2.0'
  *
  * Keys in #cmd: Enter submits; Up/Down = history of the current mode; Tab
  * completes (shell only, only with text and a match; a second Tab on the same
@@ -97,21 +101,23 @@
  * nothing selected prints ^C and clears the line; Esc clears the line. The
  * mode's onKeyDown always gets the first chance.
  *
- * The section chips are plain in-page links. Buttons with data-cmd="..."
- * (the whoami "Try:" line, "run obby", ls entries) pop every mode (onExit),
+ * The header nav links are plain in-page links. Buttons with data-cmd="..."
+ * ("run obby", help and ls entries) pop every mode (onExit),
  * show the prompt, then run the command through the same queue as typed
  * lines. So a module that hides the prompt should also pushMode() with an
  * onExit() that stops it; such a click then ends it cleanly.
  *
- * CSS hooks: .pane .pane__bar .pane__body .pane__footer .obby-* .c-* .meii-*
+ * CSS hooks: .pane .pane__bar .pane__body .pane__footer .obby-* .c-* .cli-*
  * .out--* .link-btn (all in /css/term.css). CSP: no inline styles, never parse
  * user input as HTML (build DOM with el()/textContent), no string-to-code
  * evaluation, network only via same-origin fetch().
  */
 
-const VERSION = '1.1.0';
-const PS1 = 'mei@meiorz:~$';
-const HOME = '/home/mei';
+import { R, stringParts, stringResource } from './strings.js';
+
+const VERSION = '1.2.0';
+const PS1 = R.string.term_ps1;
+const HOME = '/home/meiorz';
 const EMAIL = 'business@meiorz.tech';
 
 const OPEN_TARGETS = {
@@ -119,7 +125,8 @@ const OPEN_TARGETS = {
   github: 'https://github.com/meiorz',
   linkedin: 'https://www.linkedin.com/in/mei-o-525a0b227',
   archive: '/archive/',
-  blobguard: 'https://github.com/meiorz/blobguard',
+  lull: 'https://github.com/meiorz/lull',
+  hopout: 'https://github.com/meiorz/hopout',
 };
 
 const THEMES = ['auto', 'dark', 'light']; // the toggle cycles in this order
@@ -306,7 +313,7 @@ function markScrollable(scope) {
       if (pre.tabIndex === 0 || pre.scrollWidth <= pre.clientWidth + 1) continue;
       pre.tabIndex = 0;
       pre.setAttribute('role', 'group');
-      pre.setAttribute('aria-label', pre.dataset.label || 'Scrollable text');
+      pre.setAttribute('aria-label', pre.dataset.label || R.string.term_scrollable_label);
     }
   });
 }
@@ -364,7 +371,7 @@ function focusInput(opts) {
 function clearLog() {
   logEl.replaceChildren();
   scrollNode(logEl, 'end');
-  status('Output cleared.');
+  status(R.string.term_output_cleared);
 }
 
 let promptHeight = 0; // last measured height of the sticky prompt
@@ -460,7 +467,7 @@ function applyMode() {
   const ps1 = mode.ps1 == null ? '' : mode.ps1;
   ps1El.replaceChildren(ps1 instanceof Node ? ps1 : String(ps1));
   // Touch devices hide the key hint, so the shell's input says it instead.
-  inputEl.placeholder = mode.placeholder || (mode === shellMode && isCoarsePointer() ? 'type help' : '');
+  inputEl.placeholder = mode.placeholder || (mode === shellMode && isCoarsePointer() ? R.string.term_placeholder : '');
   formEl.classList.remove(...appliedPromptClass);
   appliedPromptClass = String(mode.promptClass || '').split(/\s+/).filter(Boolean);
   formEl.classList.add(...appliedPromptClass);
@@ -528,11 +535,11 @@ function exitModes() {
 function reportModuleError(name, err) {
   console.error(err);
   exitModes();
-  append(out('out--error', `${name}: something went wrong (${errMsg(err)}). Back to the shell.`));
+  append(out('out--error', stringResource(R.string.term_error_module, name, errMsg(err))));
   pin();
 }
 
-// ---- A tiny read-only filesystem rooted at ~ (/home/mei) ----
+// ---- A tiny read-only filesystem rooted at ~ (/home/meiorz) ----
 
 const dir = (entries, extra = {}) => ({ kind: 'dir', entries, ...extra });
 const sec = (id) => ({ kind: 'section', id });
@@ -540,33 +547,27 @@ const proj = (slug) => ({ kind: 'project', slug });
 
 // Listed in this order: ~ alphabetically, projects/ in page order.
 const FS = dir({
-  'about.md': sec('about'),
   archive: dir({}, { href: '/archive/' }),
-  'avatar.svg': { kind: 'image', tpl: 'tpl-img-avatar' },
+  // Hidden files (ls -a): a self-portrait and two Minecraft icons.
+  '.portrait.png': { kind: 'image', src: '/img/portrait.png', size: 453, show: 240, alt: R.string.term_img_portrait_alt },
+  '.pixel-pale.png': { kind: 'image', src: '/img/pixel-pale.png', size: 200, show: 128, pixel: true, alt: R.string.term_img_pixel_pale_alt },
+  '.pixel-ender.png': { kind: 'image', src: '/img/pixel-ender.png', size: 200, show: 128, pixel: true, alt: R.string.term_img_pixel_ender_alt },
   'contact.txt': sec('contact'),
   'education.md': sec('education'),
   'experience.md': sec('experience'),
-  games: dir({ obby: { kind: 'program', name: 'obby' }, meii: { kind: 'program', name: 'meii' } }, { section: 'play' }),
+  games: dir({ obby: { kind: 'program', name: 'obby' }, 'meiorz-cli': { kind: 'program', name: 'meiorz-cli' } }, { section: 'play' }),
   obby: dir({ 'obbycourse.luau': { kind: 'fetch', url: '/obby/obbycourse.luau' } }),
   projects: dir(
     {
-      'blobguard.md': proj('blobguard'),
+      'lull.md': proj('lull'),
+      'hopout.md': proj('hopout'),
       'bert-sentiment.md': proj('bert-sentiment'),
-      'meiorz-tech.md': proj('meiorz-tech'),
-      // The works-in-progress share one "also in the works" entry (#proj-wip).
-      'android-app.md': proj('wip'),
-      'ai-security-research.md': proj('wip'),
-      'agent-cli.md': proj('wip'),
-      'creator-automation.md': proj('wip'),
     },
     { section: 'projects' },
   ),
   'resume.txt': { kind: 'fetch', url: '/resume.txt' },
   'skills.txt': sec('skills'),
-  'vtuber.md': sec('streaming'),
 });
-
-const FILE_ALIASES = { 'avatar.png': 'avatar.svg' };
 
 /** Resolves a path relative to ~. Returns { node, path } or null. */
 function resolve(input) {
@@ -583,7 +584,7 @@ function resolve(input) {
   let node = FS;
   for (const seg of parts) {
     if (node.kind !== 'dir') return null;
-    const next = get(node.entries, seg) || (node === FS && has(FILE_ALIASES, seg) ? FS.entries[FILE_ALIASES[seg]] : undefined);
+    const next = get(node.entries, seg);
     if (!next) return null;
     node = next;
   }
@@ -594,10 +595,11 @@ function entriesOf(node) {
   return Object.entries(node.entries);
 }
 
-/** Clickable ls output for a directory. */
-function listing(node, prefix) {
+/** Clickable ls output for a directory. Dotfiles are listed only with `all` (ls -a). */
+function listing(node, prefix, all = false) {
   const ul = el('ul', { class: 'ls' });
   for (const [name, child] of entriesOf(node)) {
+    if (name.startsWith('.') && !all) continue;
     const path = prefix + name;
     let item;
     if (child.kind === 'dir') item = cmdBtn(`ls ${path}/`, `${name}/`);
@@ -619,20 +621,19 @@ function completePath(word) {
   const found = resolve(dirPart || '~');
   if (!found || found.node.kind !== 'dir') return [];
   return entriesOf(found.node)
-    .filter(([name]) => name.startsWith(base))
+    .filter(([name]) => name.startsWith(base) && (base.startsWith('.') || !name.startsWith('.')))
     .map(([name, child]) => tilde + dirPart + name + (child.kind === 'dir' ? '/' : ''));
 }
 
 // ---- Printing page content ----
 
 /**
- * Copies a static section for the log: ids and the echo line removed,
+ * Copies a static section for the log: ids removed,
  * headings turned into <p class="h1|h2|h3"> so the outline stays unique,
  * and the outer <section>/<article> turned into a plain <div>.
  */
 function cloneForLog(src) {
   const copy = src.cloneNode(true);
-  for (const n of copy.querySelectorAll(':scope > .cmd')) n.remove();
   for (const n of [copy, ...copy.querySelectorAll('[id]')]) n.removeAttribute('id');
   for (const n of [copy, ...copy.querySelectorAll('[aria-labelledby], [aria-describedby]')]) {
     n.removeAttribute('aria-labelledby');
@@ -651,18 +652,20 @@ function cloneForLog(src) {
 
 function section(id) {
   const src = document.getElementById(id);
-  return src ? out('', cloneForLog(src)) : out('out--error', `${id}: section not found`);
+  return src ? out('', cloneForLog(src)) : out('out--error', stringResource(R.string.term_error_section, id));
 }
 
 function project(slug) {
   const src = document.getElementById(`proj-${slug}`);
-  return src ? out('', cloneForLog(src)) : out('out--error', `cat: projects/${slug}.md: No such file or directory`);
+  return src ? out('', cloneForLog(src)) : out('out--error', stringResource(R.string.term_cat_missing, `projects/${slug}.md`));
 }
 
-function image(tplId) {
-  const tpl = document.getElementById(tplId);
-  if (!(tpl instanceof HTMLTemplateElement)) return out('out--error', 'cat: image not found');
-  return out('', document.importNode(tpl.content, true));
+/** A picture file: the image itself, at a fixed display size (no layout shift). */
+function image(node) {
+  return out('', el('img', {
+    class: node.pixel ? 'term-img pixel' : 'term-img',
+    attrs: { src: node.src, alt: node.alt, width: node.show, height: node.show, decoding: 'async' },
+  }));
 }
 
 async function fetchText(url) {
@@ -674,28 +677,28 @@ async function fetchText(url) {
 async function fetchFile(url, label) {
   try {
     const text = await fetchText(url);
-    return out('', preEl(text.replace(/\s+$/, ''), label), el('p', { class: 'hint' }, 'Plain file: ', link(url)));
+    return out('', preEl(text.replace(/\s+$/, ''), label), el('p', { class: 'hint' }, stringParts(R.string.term_plain_file, link(url))));
   } catch (err) {
-    return out('out--error', `cat: ${label}: could not load it (${errMsg(err)}). Plain file: `, link(url));
+    return out('out--error', stringParts(R.string.term_cat_load_failed, label, errMsg(err), link(url)));
   }
 }
 
 async function catNode(node, path) {
   switch (node.kind) {
     case 'dir':
-      return out('out--error', `cat: ${path}: Is a directory`);
+      return out('out--error', stringResource(R.string.term_cat_is_dir, path));
     case 'section':
       return section(node.id);
     case 'project':
       return project(node.slug);
     case 'image':
-      return image(node.tpl);
+      return image(node);
     case 'fetch':
       return fetchFile(node.url, path);
     case 'program':
-      return out('', `cat: ${path}: that's a program, not a text file. Run it: `, cmdBtn(node.name));
+      return out('', stringParts(R.string.term_cat_is_program, path, cmdBtn(node.name)));
     default:
-      return out('out--error', `cat: ${path}: cannot read this file`);
+      return out('out--error', stringResource(R.string.term_cat_unreadable, path));
   }
 }
 
@@ -710,7 +713,7 @@ function dirWithSection(node, prefix) {
 
 const LOADERS = {
   obby: () => import('./obby.js'),
-  meii: () => import('./meii.js'),
+  'meiorz-cli': () => import('./meiorz-cli.js'),
 };
 
 /**
@@ -741,19 +744,19 @@ function launchApi(gen) {
 
 async function launch(name, args) {
   const gen = ++launchGen;
-  status(`Loading ${name}…`);
+  status(stringResource(R.string.term_loading, name));
   let mod;
   try {
     mod = await LOADERS[name]();
   } catch (err) {
     console.error(err);
     status('');
-    return out('out--error', `${name}: couldn't load the program (${errMsg(err)}). You're still in the shell.`);
+    return out('out--error', stringResource(R.string.term_error_load, name, errMsg(err)));
   }
   status('');
   if (gen !== launchGen) return null; // superseded while loading
   if (typeof mod.start !== 'function') {
-    return out('out--error', `${name}: this program has no start() function. You're still in the shell.`);
+    return out('out--error', stringResource(R.string.term_error_no_start, name));
   }
   try {
     const result = mod.start(launchApi(gen), args);
@@ -776,7 +779,7 @@ function currentTheme() {
 /* A plain button whose label states the current value (a 3-way cycle can't
    be a pressed/unpressed toggle); status() announces each change. */
 function syncToggle() {
-  if (toggleEl) toggleEl.textContent = `theme: ${currentTheme()}`;
+  if (toggleEl) toggleEl.textContent = stringResource(R.string.theme_toggle, currentTheme());
 }
 
 function setTheme(theme) {
@@ -794,6 +797,12 @@ function setMotion(on) {
 // ---- Commands ----
 
 const GROUPS = ['Sections', 'Files', 'Play', 'Shell'];
+const GROUP_LABELS = {
+  Sections: R.string.term_group_sections,
+  Files: R.string.term_group_files,
+  Play: R.string.term_group_play,
+  Shell: R.string.term_group_shell,
+};
 
 /**
  * Tags each command with its help group; usage defaults to the bare name.
@@ -806,172 +815,170 @@ function group(name, defs) {
   return defs;
 }
 
-const USAGE_THEME = 'Usage: theme light | dark | auto';
+const USAGE_THEME = R.string.term_theme_usage;
 
 const COMMANDS = {
   ...group('Sections', {
-    whoami: { about: 'who is this?', run: () => section('whoami') },
-    about: { about: 'a short bio (same as cat about.md)', run: () => section('about') },
-    projects: { about: 'what Mei is building (same as ls projects/)', run: () => dirWithSection(FS.entries.projects, 'projects/') },
-    skills: { about: 'languages, systems, tooling, AI and data', run: () => section('skills') },
-    education: { about: 'City College of San Francisco courses and targets', run: () => section('education') },
-    experience: { about: 'tutoring, ASL interpreting, outreach', run: () => section('experience') },
-    vtuber: { about: 'an anime-style VTuber, preparing a relaunch', run: () => section('streaming') },
+    whoami: { about: R.string.term_cmd_whoami_about, run: () => section('intro') },
+    projects: { about: R.string.term_cmd_projects_about, run: () => dirWithSection(FS.entries.projects, 'projects/') },
+    skills: { about: R.string.term_cmd_skills_about, run: () => section('skills') },
+    education: { about: R.string.term_cmd_education_about, run: () => section('education') },
+    experience: { about: R.string.term_cmd_experience_about, run: () => section('experience') },
     asl: {
-      about: 'American Sign Language',
+      about: R.string.term_cmd_asl_about,
       run: () => out('',
-        el('p', {}, 'I interpret American Sign Language (ASL) in STEM settings, where technical content has to come across precisely and in real time.'),
-        el('p', {}, 'I’m working toward the CCSF ASL certificate (AMSL 2B), expected Fall 2027.'),
-        el('p', {}, 'I’m also fluent in English and Japanese. More: ', cmdBtn('experience'), '.')),
+        el('p', {}, R.string.term_asl_body_1),
+        el('p', {}, stringParts(R.string.term_asl_body_3, cmdBtn('skills')))),
     },
-    contact: { about: 'email, GitHub, LinkedIn', run: () => section('contact') },
+    contact: { about: R.string.term_cmd_contact_about, run: () => section('contact') },
     hire: {
-      about: 'the shortest path to an email',
+      about: R.string.term_cmd_hire_about,
       run: () => out('',
-        el('p', {}, 'Mei is seeking Summer 2027 software engineering internships.'),
-        el('p', {}, 'Email: ', link(`mailto:${EMAIL}?subject=${encodeURIComponent('Summer 2027 internship')}`, EMAIL), ' · résumé: ', link('/resume.txt', 'resume.txt'))),
+        el('p', {}, R.string.intro_seeking),
+        el('p', {}, stringParts(R.string.term_hire_links, link(`mailto:${EMAIL}?subject=${encodeURIComponent(R.string.term_hire_subject)}`, EMAIL), link('/resume.txt', R.string.footer_resume)))),
     },
   }),
 
   ...group('Files', {
     ls: {
       usage: 'ls [path]',
-      about: 'list files (try ls projects/)',
-      more: 'Lists the files in ~ (/home/mei) or in a directory: projects/, games/, obby/ or archive/. Click a name to open it. Flags such as -l are accepted and ignored.',
+      about: R.string.term_cmd_ls_about,
+      more: R.string.term_cmd_ls_more,
       run: (args) => {
         const target = args.find((a) => !a.startsWith('-')) || '~';
         const found = resolve(target);
-        if (!found) return out('out--error', `ls: cannot access '${target}': No such file or directory`);
+        if (!found) return out('out--error', stringResource(R.string.term_ls_missing, target));
         const { node, path } = found;
         const prefix = path ? `${path}/` : '';
         if (node.kind !== 'dir') return out('', path);
-        if (node.href) return out('', `${prefix} is its own part of the site: `, link(node.href));
-        return node.section ? dirWithSection(node, prefix) : out('', listing(node, prefix));
+        if (node.href) return out('', stringParts(R.string.term_ls_own_part, prefix, link(node.href)));
+        const all = args.some((a) => /^-[a-z]*a/i.test(a));
+        return node.section ? dirWithSection(node, prefix) : out('', listing(node, prefix, all));
       },
     },
     cat: {
       usage: 'cat <file>',
-      about: 'print a file (try cat avatar.svg)',
-      more: 'Prints a file. Try cat about.md, cat projects/blobguard.md, cat avatar.svg or cat obby/obbycourse.luau. Tab completes file names.',
+      about: R.string.term_cmd_cat_about,
+      more: R.string.term_cmd_cat_more,
       needsArg: true,
       run: async (args) => {
         const targets = args.filter((a) => !a.startsWith('-')).slice(0, 4);
-        if (!targets.length) return out('out--error', 'cat: missing file operand. Try: cat about.md');
+        if (!targets.length) return out('out--error', R.string.term_cat_no_operand);
         const results = [];
         for (const target of targets) {
           const found = resolve(target);
-          results.push(found ? await catNode(found.node, target) : out('out--error', `cat: ${target}: No such file or directory`));
+          results.push(found ? await catNode(found.node, target) : out('out--error', stringResource(R.string.term_cat_missing, target)));
         }
         return results;
       },
     },
     resume: {
-      about: 'print resume.txt',
-      more: 'Prints /resume.txt, the plain-text résumé. The same file is linked in the chips and the footer.',
+      about: R.string.term_cmd_resume_about,
+      more: R.string.term_cmd_resume_more,
       run: () => fetchFile('/resume.txt', 'resume.txt'),
     },
     open: {
       usage: 'open <target>',
-      about: 'open a link in a new tab (resume, github, linkedin, archive, blobguard)',
-      more: 'Opens resume, github, linkedin, archive or blobguard in a new tab. If your browser blocks the new tab, use the printed link. open avatar prints the avatar image.',
+      about: R.string.term_cmd_open_about,
+      more: R.string.term_cmd_open_more,
       needsArg: true,
       run: (args) => {
         const raw = args[0] || '';
         const target = raw.toLowerCase().replace(/\.txt$/, '');
-        if (['avatar', 'avatar.svg', 'avatar.png'].includes(target)) return image('tpl-img-avatar');
         const url = get(OPEN_TARGETS, target);
-        if (!url) return out('out--error', `open: ${raw ? `unknown target '${raw}'` : 'missing target'}. Try: open resume | github | linkedin | archive | blobguard`);
+        if (!url) return out('out--error', stringResource(raw ? R.string.term_open_unknown : R.string.term_open_no_target, raw));
         try {
           window.open(url, '_blank', 'noopener');
         } catch {
           /* blocked: the printed link still works */
         }
-        return out('', `Opening ${target} in a new tab: `, link(url));
+        return out('', stringParts(R.string.term_open_opening, target, link(url)));
       },
     },
   }),
 
   ...group('Play', {
-    games: { about: 'what you can play here', run: () => dirWithSection(FS.entries.games, 'games/') },
+    games: { about: R.string.term_cmd_games_about, run: () => dirWithSection(FS.entries.games, 'games/') },
     obby: {
-      about: 'tiny platformer: play Mei’s Mini Obby',
-      more: 'A small obstacle course on a text grid. Luau-flavored, written in JavaScript: the course data is a real Luau module parsed at runtime (cat obby/obbycourse.luau). Keys: Left/Right or A/D move, Space/Up/W jump, R restart, Esc quit. Touch buttons are included.',
+      about: R.string.term_cmd_obby_about,
+      more: R.string.term_cmd_obby_more,
       run: (args) => launch('obby', args),
     },
-    meii: {
-      about: 'parody CLI: Mei I?, fully scripted',
-      more: 'Mei I? is a scripted parody of an agentic coding CLI. No AI and no network calls: every reply is pre-written. Type /help inside it and /exit to leave.',
-      run: (args) => launch('meii', args),
+    'meiorz-cli': {
+      about: R.string.term_cmd_cli_about,
+      more: R.string.term_cmd_cli_more,
+      run: (args) => launch('meiorz-cli', args),
     },
   }),
 
   ...group('Shell', {
     help: {
-      about: 'this list',
-      more: 'Lists every command. Keys: Up/Down history, Tab completes, Ctrl+L clears, Ctrl+C cancels the line, Esc clears the line.',
+      about: R.string.term_cmd_help_about,
+      more: R.string.term_cmd_help_more,
       run: () => helpOutput(),
     },
-    man: { usage: 'man <command>', about: 'the manual for one command', needsArg: true, run: (args) => manOutput(args[0]) },
+    man: { usage: 'man <command>', about: R.string.term_cmd_man_about, needsArg: true, run: (args) => manOutput(args[0]) },
     history: {
-      about: 'commands you have typed',
-      more: 'Lists the commands typed in this tab. Nothing is saved or sent anywhere.',
+      about: R.string.term_cmd_history_about,
+      more: R.string.term_cmd_history_more,
       run: () => {
         const items = historyOf(shellMode).items;
-        if (!items.length) return out('out--muted', 'No history yet.');
-        return out('', preEl(items.map((line, i) => `${String(i + 1).padStart(4)}  ${line}`).join('\n'), 'Command history'));
+        if (!items.length) return out('out--muted', R.string.term_history_empty);
+        return out('', preEl(items.map((line, i) => `${String(i + 1).padStart(4)}  ${line}`).join('\n'), R.string.term_history_label));
       },
     },
     clear: {
-      about: 'clear the output (Ctrl+L)',
-      more: 'Clears the terminal output. The page sections above it stay where they are. Same as Ctrl+L.',
+      about: R.string.term_cmd_clear_about,
+      more: R.string.term_cmd_clear_more,
       run: () => clearLog(),
     },
     theme: {
       usage: 'theme [light|dark|auto]',
-      about: 'switch colors',
-      more: 'With no argument, shows the current theme. auto follows your system setting. The choice is saved in this browser only (localStorage) and never sent anywhere.',
+      about: R.string.term_cmd_theme_about,
+      more: R.string.term_cmd_theme_more,
       run: (args) => {
         const want = (args[0] || '').toLowerCase();
         if (!want) {
           const t = currentTheme();
-          const sys = t === 'auto' ? ` (your system prefers ${darkQuery.matches ? 'dark' : 'light'})` : '';
-          return out('', `theme: ${t}${sys}. ${USAGE_THEME}`);
+          return out('', t === 'auto'
+            ? stringResource(R.string.term_theme_current_auto, darkQuery.matches ? 'dark' : 'light', USAGE_THEME)
+            : stringResource(R.string.term_theme_current, t, USAGE_THEME));
         }
-        if (!THEMES.includes(want)) return out('out--error', `theme: unknown theme '${args[0]}'. ${USAGE_THEME}`);
+        if (!THEMES.includes(want)) return out('out--error', stringResource(R.string.term_theme_unknown, args[0], USAGE_THEME));
         setTheme(want);
-        return out('out--ok', `theme: ${want}${want === 'auto' ? ' (following your system)' : ''}`);
+        return out('out--ok', stringResource(want === 'auto' ? R.string.term_theme_set_auto : R.string.term_theme_set, want));
       },
     },
     motion: {
       usage: 'motion [on|off]',
-      about: 'turn animations on or off',
-      more: 'motion off stops animations and smooth scrolling. motion on allows them again, unless your system asks for reduced motion. Saved in this browser only.',
+      about: R.string.term_cmd_motion_about,
+      more: R.string.term_cmd_motion_more,
       run: (args) => {
         const want = (args[0] || '').toLowerCase();
-        const osNote = reduceMotionQuery.matches ? ' Your system asks for reduced motion, so animations stay off.' : '';
-        if (!want) return out('', `motion: ${reducedMotion() ? 'off' : 'on'}.${osNote} Usage: motion on | off`);
-        if (want !== 'on' && want !== 'off') return out('out--error', `motion: expected on or off, got '${args[0]}'`);
+        const osNote = reduceMotionQuery.matches ? ` ${R.string.term_motion_os_note}` : '';
+        if (!want) return out('', stringResource(R.string.term_motion_current, reducedMotion() ? 'off' : 'on', osNote));
+        if (want !== 'on' && want !== 'off') return out('out--error', stringResource(R.string.term_motion_unknown, args[0]));
         setMotion(want === 'on');
-        return out('out--ok', want === 'off' ? 'motion: off. Animations and smooth scrolling are disabled.' : `motion: on.${osNote}`);
+        return out('out--ok', want === 'off' ? R.string.term_motion_off : stringResource(R.string.term_motion_on, osNote));
       },
     },
-    echo: { usage: 'echo <text>', about: 'print text', run: (args, rest) => out('', rest.replace(/\$(USER|HOME)\b/g, (_, v) => (v === 'USER' ? 'mei' : HOME))) },
-    date: { about: 'show the date', run: () => out('', new Date().toString()) },
-    pwd: { about: 'print the working directory', run: () => out('', HOME) },
-    cd: { usage: 'cd [dir]', about: 'change directory (sort of)', run: () => out('', 'there’s no place like ~') },
+    echo: { usage: 'echo <text>', about: R.string.term_cmd_echo_about, run: (args, rest) => out('', rest.replace(/\$(USER|HOME)\b/g, (_, v) => (v === 'USER' ? 'meiorz' : HOME))) },
+    date: { about: R.string.term_cmd_date_about, run: () => out('', new Date().toString()) },
+    pwd: { about: R.string.term_cmd_pwd_about, run: () => out('', HOME) },
+    cd: { usage: 'cd [dir]', about: R.string.term_cmd_cd_about, run: () => out('', R.string.term_cd) },
     sudo: {
       usage: 'sudo <command>',
-      about: 'try it',
-      run: () => out('', 'mei is not in the sudoers file. This incident will be reported to… nobody. No trackers here.'),
+      about: R.string.term_cmd_sudo_about,
+      run: () => out('', R.string.term_sudo),
     },
     exit: {
-      about: 'leave',
-      run: () => out('', 'There’s no logout here: this terminal is a browser tab. Close it whenever you like. Thanks for stopping by!'),
+      about: R.string.term_cmd_exit_about,
+      run: () => out('', R.string.term_exit),
     },
   }),
 };
 
-const ALIASES = { courses: 'education', academics: 'education', stream: 'vtuber', streaming: 'vtuber', play: 'games' };
+const ALIASES = { courses: 'education', academics: 'education', play: 'games' };
 const COMMAND_NAMES = [...Object.keys(COMMANDS), ...Object.keys(ALIASES)].sort();
 
 function canonical(name) {
@@ -987,7 +994,7 @@ function aliasesOf(name) {
 }
 
 function helpOutput() {
-  const box = out('', el('p', {}, 'Click a command or type it. ', el('span', { class: 'meta' }, 'man <command> explains one.')));
+  const box = out('', el('p', {}, R.string.term_help_intro, ' ', el('span', { class: 'meta' }, R.string.term_help_man)));
   for (const group of GROUPS) {
     const dl = el('dl', { class: 'cmds' });
     for (const [name, c] of Object.entries(COMMANDS)) {
@@ -995,22 +1002,22 @@ function helpOutput() {
       const args = c.usage.slice(name.length);
       const button = c.needsArg ? fillBtn(`${name} `, name) : cmdBtn(name);
       const aliases = aliasesOf(name);
-      dl.append(el('dt', {}, button, args), el('dd', {}, c.about, aliases.length ? ` (also: ${aliases.join(', ')})` : ''));
+      dl.append(el('dt', {}, button, args), el('dd', {}, c.about, aliases.length ? ` ${stringResource(R.string.term_help_aliases, aliases.join(', '))}` : ''));
     }
-    box.append(el('p', { class: 'group' }, group), dl);
+    box.append(el('p', { class: 'group' }, GROUP_LABELS[group]), dl);
   }
   box.append(
-    el('p', { class: 'hint' }, 'Keys: ', kbd('↑'), '/', kbd('↓'), ' history · ', kbd('Tab'), ' completes · ', kbd('Ctrl'), '+', kbd('L'), ' clears · ', kbd('Ctrl'), '+', kbd('C'), ' cancels · ', kbd('Esc'), ' clears the line'),
+    el('p', { class: 'hint' }, stringParts(R.string.term_help_keys, kbd('↑'), kbd('↓'), kbd('Tab'), kbd('Ctrl'), kbd('L'), kbd('Ctrl'), kbd('C'), kbd('Esc'))),
   );
   return box;
 }
 
 function manOutput(word) {
   const asked = (word || '').toLowerCase();
-  if (!asked) return out('', 'What manual page do you want? Try: ', cmdBtn('man obby'));
+  if (!asked) return out('', stringParts(R.string.term_man_which, cmdBtn('man obby')));
   const name = canonical(asked);
   const c = commandFor(asked);
-  if (!c) return out('out--error', `No manual entry for ${word}`);
+  if (!c) return out('out--error', stringResource(R.string.term_man_missing, word));
   const part = (title, ...lines) => [el('p', { class: 'group' }, title), ...lines.map((l) => el('p', { class: 'indent' }, l))];
   const aliases = aliasesOf(name);
   return out(
@@ -1037,12 +1044,12 @@ function suggest(word) {
 }
 
 function notFound(word) {
-  const box = out('', el('span', { class: 'out--error' }, `command not found: ${word} — try `, cmdBtn('help')));
+  const box = out('', el('span', { class: 'out--error' }, stringParts(R.string.term_not_found, word, cmdBtn('help'))));
   const found = resolve(word);
   let hint = null;
   if (found && found.path) hint = found.node.kind === 'dir' ? `ls ${found.path}/` : `cat ${word}`;
   else hint = suggest(word.toLowerCase());
-  if (hint) box.append(el('br'), 'did you mean ', cmdBtn(hint), '?');
+  if (hint) box.append(el('br'), ...stringParts(R.string.term_did_you_mean, cmdBtn(hint)));
   return box;
 }
 
@@ -1095,7 +1102,7 @@ function candidatesFor(value) {
   const pick = (options) => options.filter((o) => o.startsWith(word.toLowerCase()));
   let list = [];
   if (cmd === 'ls' || cmd === 'cat') list = completePath(word);
-  else if (cmd === 'open') list = pick([...Object.keys(OPEN_TARGETS), 'avatar']);
+  else if (cmd === 'open') list = pick(Object.keys(OPEN_TARGETS));
   else if (cmd === 'theme') list = pick(THEMES);
   else if (cmd === 'motion') list = pick(['on', 'off']);
   else if (cmd === 'man') list = pick(COMMAND_NAMES);
@@ -1133,7 +1140,7 @@ function tabComplete() {
   line.setAttribute('aria-hidden', 'true');
   append(line);
   pin();
-  status(`${names.length} completions: ${names.join(', ')}`);
+  status(stringResource(R.string.term_completions, names.length, names.join(', ')));
   return true;
 }
 
@@ -1215,7 +1222,7 @@ function onSubmit(e) {
 const INTERACTIVE = 'a, button, input, textarea, select, summary, label, [tabindex], [contenteditable], [role="button"], [role="option"], [role="listbox"]';
 
 /**
- * Section chips are plain in-page links: the browser scrolls; we also move
+ * Header nav links are plain in-page links: the browser scrolls; we also move
  * focus to the section's heading so keyboard and screen reader users land there.
  */
 function onChipClick(chip) {
@@ -1229,12 +1236,12 @@ function onChipClick(chip) {
   if (heading) requestAnimationFrame(() => heading.focus({ preventScroll: true }));
 }
 
-/** [data-cmd] buttons (Try: line, run obby, ls entries) run commands; [data-fill] types into the prompt. */
+/** [data-cmd] buttons (run obby, help and ls entries) run commands; [data-fill] types into the prompt. */
 function onDocumentClick(e) {
   if (!root.classList.contains('term-ready') || e.defaultPrevented || e.button !== 0) return;
   if (!(e.target instanceof Element)) return;
   const modified = e.metaKey || e.ctrlKey || e.shiftKey || e.altKey;
-  const chip = e.target.closest('.chips a[href^="#"]');
+  const chip = e.target.closest('.site-nav a[href^="#"]');
   if (chip) {
     if (!modified) onChipClick(chip);
     return; // native navigation, no command
@@ -1266,15 +1273,33 @@ function onDocumentClick(e) {
   });
 }
 
-/** Clicking the terminal area (log, prompt, empty space) focuses the input. */
+/** Clicking the terminal (log, prompt, empty space) focuses the input. */
 function onScreenClick(e) {
   if (formEl.hidden || lastPointer === 'touch' || lastPointer === 'pen') return;
   if (!(e.target instanceof Element) || e.target.closest(INTERACTIVE)) return;
-  // Static sections are for reading: clicking them must not steal Space/PageDown.
-  if (e.target.closest('.block')) return;
   const sel = window.getSelection();
   if (sel && String(sel)) return;
   focusInput();
+}
+
+/**
+ * The back-to-top button: shown once the intro has scrolled out of view, and
+ * marked .near-terminal while the terminal is on screen (CSS hides it there on
+ * small screens). Observers, not a scroll handler.
+ */
+function initToTop() {
+  const button = document.getElementById('to-top');
+  const intro = document.getElementById('intro');
+  if (!button || !intro || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([entry]) => button.classList.toggle('is-visible', !entry.isIntersecting)).observe(intro);
+  const terminal = document.getElementById('terminal');
+  if (terminal) new IntersectionObserver(([entry]) => button.classList.toggle('near-terminal', entry.isIntersecting)).observe(terminal);
+  button.addEventListener('click', (e) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: reducedMotion() ? 'instant' : 'smooth' });
+    document.getElementById('h-intro')?.focus({ preventScroll: true });
+  });
 }
 
 // ---- The public API object and init ----
@@ -1310,7 +1335,7 @@ function init() {
   statusEl = document.getElementById('status');
   hintEl = document.getElementById('cmd-help');
   toggleEl = document.getElementById('theme-toggle');
-  const screenEl = document.getElementById('main');
+  const screenEl = document.getElementById('terminal');
   ps1El = formEl ? formEl.querySelector('.ps1') : null;
   if (!logEl || !formEl || !inputEl || !hintEl || !ps1El || !screenEl) return; // not the home page
 
@@ -1333,7 +1358,7 @@ function init() {
     toggleEl.addEventListener('click', () => {
       const next = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length];
       setTheme(next);
-      status(`Theme: ${next}${next === 'auto' ? ', following your system' : ''}.`);
+      status(stringResource(next === 'auto' ? R.string.term_theme_status_auto : R.string.term_theme_status, next));
     });
   }
 
@@ -1348,9 +1373,10 @@ function init() {
   // Ready: reveal JS-only controls and the prompt, then say hello.
   // (Appended directly so it never scrolls the page on load.)
   root.classList.add('term-ready');
+  initToTop();
   formEl.hidden = false;
   applyMode(); // shell prompt: default hint, touch placeholder, prompt height
-  logEl.append(out('out--muted', 'Welcome. Type or click ', cmdBtn('help'), ' to see what this terminal can do.'));
+  logEl.append(out('out--muted', stringParts(R.string.term_welcome, cmdBtn('help'))));
 }
 
 try {

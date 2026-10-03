@@ -1,19 +1,20 @@
-MEI OKUBO
+MEIORZ
 San Francisco, CA | business@meiorz.tech
 www.meiorz.tech | github.com/meiorz | linkedin.com/in/mei-o-525a0b227
-Seeking Summer 2027 software engineering internships.
+Seeking a software engineering internship for summer 2027.
 
 EDUCATION
 ------------------------------------------------------------------------------------------
-City College of San Francisco -- Computer Science transfer student
-IGETC and CS major preparation; target junior transfer Fall 2028
+City College of San Francisco                                        Summer 2022 - Present
+Computer Science; linguistics through American Sign Language
 Coursework: Data Structures and Algorithms in C++ (CS 110C) and in Java (CS 111C);
 Computer Architecture and MIPS Assembly (CS 270); Calculus I-II
 
 SKILLS
 ------------------------------------------------------------------------------------------
-Languages:    C++, Java, Python, SQL, Kotlin, Bash/Shell, MIPS Assembly
-Systems:      Linux, Docker, Azure, Terraform
+Languages:    C++, Java, Python, JavaScript, TypeScript, SQL, Kotlin, Bash/Shell,
+              MIPS Assembly
+Systems:      Linux, Docker
 Tooling:      Git/GitHub, GitHub Actions (CI/CD), unit and integration testing, debugging,
               CLI development, code review
 AI and Data:  ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted
@@ -21,46 +22,41 @@ AI and Data:  ML fundamentals, NLP, transformer models (Google BERT), LLM-assist
 
 PROJECTS
 ------------------------------------------------------------------------------------------
-BlobGuard -- open-source object-storage security posture scanner (Python, MIT)
-github.com/meiorz/blobguard                                             Aug 2026 - Present
-- Own and direct a read-only CLI, built with an AI-assisted (agentic coding) workflow,
-  that audits storage settings and reports each finding with evidence and a remediation.
-- Provider-abstraction interface keeps check logic out of cloud adapters; the Azure
-  adapter is in progress (initial checks landing), AWS and Google Cloud planned.
-- Unconfirmed checks report "error", never "pass"; exit codes (0 clean, 1 fail, 2 bad
-  usage, 3 could not run) let a scan gate CI. JSON and Markdown reports.
-- Least privilege: control-plane APIs only, never object contents; DefaultAzureCredential.
-- Terraform sandbox labs on Azure (dummy data) and a pytest suite with a fake Azure
-  client; CI runs ruff, mypy and pytest.
+Lull -- Chrome extension: a calm dark theme for every website (JavaScript, Manifest V3)
+github.com/meiorz/lull                                                  Oct 2026 - Present
+- Designed for autistic people and people with ADHD: no white flash, no pure black or
+  white, capped saturation (colors mapped in OKLCH), stopped animations, frozen GIFs.
+- No dependencies, build step, analytics or server; 138 checks run it in real Chrome.
 
-Tweet Sentiment Classification with BERT -- Inspirit AI Scholar project (Python, PyTorch)
-- Fine-tuned Google BERT on a labeled tweet corpus, from preprocessing to evaluation, and
-  presented the results and error analysis at Inspirit AI Demo Day.
+HopOut -- VS Code extension: Tab out of quotes and brackets (TypeScript, MIT)
+github.com/meiorz/hopout                                                Oct 2026 - Present
+- Structure-aware scanner (escapes, nesting, comments, multi-character delimiters) that
+  takes Tab only when a hop is possible, so snippets and completions keep working.
+- Unit tests for the scanner; integration tests press real keys inside VS Code.
 
-meiorz.tech -- terminal-style personal site | www.meiorz.tech           Sep 2026 - Present
-- Accessible static site (WCAG 2.2 AA target) with a strict Content Security Policy and no
-  trackers on Azure Static Web Apps; GitHub Actions runs dependency-free privacy, link
-  and size checks before each deploy.
+Tweet Sentiment Classification with BERT -- Inspirit AI Scholar project      Spring 2022
+- Fine-tuned Google BERT (Python, PyTorch) on a labeled tweet corpus, from preprocessing
+  to evaluation, and presented the results and error analysis at Inspirit AI Demo Day.
 
 EXPERIENCE AND LEADERSHIP
 ------------------------------------------------------------------------------------------
 Computer Science Tutor / Teaching Assistant                             Sep 2024 - Present
 City College of San Francisco -- San Francisco, CA
-- Debug student code live in C++, Java and Python and explain the reasoning, not just the
-  fix, for students across a wide range of backgrounds.
+- Tutor 1-2 students a week: debug their code live in C++, Java and Python and explain the
+  reasoning, not just the fix, for students across a wide range of backgrounds.
 
-Ambassador and AI Scholar Alum, Inspirit AI                             Mar 2023 - Present
-- AI and STEM education outreach to students, educators and families; 100+ contacts.
+Ambassador and AI Scholar Alum, Inspirit AI                            Mar 2023 - Aug 2024
+- Reached out to 100+ students, educators and families, inviting them to join the upcoming
+  AI Scholar curriculum.
 
 CERTIFICATIONS
 ------------------------------------------------------------------------------------------
+AI Scholar, Inspirit AI                                                           Apr 2022
 Microsoft Certified: Azure AI Fundamentals (AI-900)                               Oct 2021
 Microsoft Certified: Azure Data Fundamentals (DP-900)                             Aug 2021
 Microsoft Certified: Azure Fundamentals (AZ-900)                                  Jul 2021
 Microsoft 365 Certified: Fundamentals (MS-900)                                    Jun 2021
-AI Scholar, Inspirit AI                                                           Apr 2022
 
 LANGUAGES
 ------------------------------------------------------------------------------------------
-English and Japanese (fluent) | American Sign Language: interpreting in STEM settings;
-CCSF ASL certificate in progress (AMSL 2B, expected Fall 2027)
+English and Japanese (fluent) | American Sign Language (limited to STEM communication)

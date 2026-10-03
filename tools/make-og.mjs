@@ -20,21 +20,13 @@ export const WIDTH = 1200;
 export const HEIGHT = 630;
 const BUDGET_BYTES = 150 * 1024;
 
-// Colours come from the site's dark theme (css/term.css) so the card matches the page.
+// Colours come from the site's light theme (css/term.css) so the card matches the page.
 const COLOR = {
-  backdrop: '#1a1f2b',
-  backdropDot: '#232a38',
-  shadow: '#0a0c10',
-  frame: '#2e3440',
-  titlebar: '#161a20',
-  screen: '#0f1115',
-  fg: '#e6e6e6',
-  muted: '#a0a8b3',
-  prompt: '#7ee0a1',
-  accent: '#7cc4ff',
-  dotRed: '#ff8f8f',
-  dotYellow: '#f2c46d',
-  dotGreen: '#7ee0a1',
+  bg: '#faf9f5',
+  fg: '#141413',
+  muted: '#5e5d59',
+  accent: '#a8472a',
+  line: '#e0dcd0',
 };
 
 // ---------------------------------------------------------------------------
@@ -258,63 +250,31 @@ export class Canvas {
 }
 
 // ---------------------------------------------------------------------------
-// The card: a terminal window that has just run `whoami`.
+// The card: the site name, one line about it and the address, on the page's
+// warm background with a short accent rule above and a hairline frame.
 // ---------------------------------------------------------------------------
 export function renderCard() {
-  const cv = new Canvas(WIDTH, HEIGHT, COLOR.backdrop);
-  for (let y = 12; y < HEIGHT; y += 24) {
-    for (let x = 12; x < WIDTH; x += 24) cv.fillRect(x, y, 2, 2, COLOR.backdropDot);
-  }
+  const cv = new Canvas(WIDTH, HEIGHT, COLOR.line);
+  cv.fillRect(2, 2, WIDTH - 4, HEIGHT - 4, COLOR.bg); // 2px hairline frame
 
-  // Window: hard drop shadow, 2px frame, title bar, screen.
-  const win = { x: 48, y: 34, w: 1104, h: 548, r: 14 };
-  cv.fillRoundRect(win.x, win.y + 12, win.w, win.h, win.r, COLOR.shadow);
-  cv.fillRoundRect(win.x, win.y, win.w, win.h, win.r, COLOR.frame);
-  const inner = { x: win.x + 2, y: win.y + 2, w: win.w - 4, h: win.h - 4, r: win.r - 2 };
-  const barH = 56;
-  const bodyTop = inner.y + barH + 2;
-  const bodyBottom = inner.y + inner.h;
-  cv.fillRoundRect(inner.x, inner.y, inner.w, inner.h, inner.r, COLOR.titlebar);
-  cv.fillRoundRect(inner.x, bodyTop, inner.w, bodyBottom - bodyTop, inner.r, COLOR.screen);
-  cv.fillRect(inner.x, bodyTop, inner.w, inner.r, COLOR.screen); // square the screen's top corners
-  cv.fillRect(inner.x, bodyTop - 2, inner.w, 2, COLOR.frame); // divider under the title bar
-
-  [COLOR.dotRed, COLOR.dotYellow, COLOR.dotGreen].forEach((color, i) => {
-    cv.fillCircle(inner.x + 30 + i * 28, inner.y + barH / 2, 8, color);
-  });
-  const title = 'mei@meiorz: ~';
-  const titleScale = 3;
-  cv.drawText(
-    title,
-    inner.x + Math.round((inner.w - textWidth(title, titleScale)) / 2),
-    inner.y + Math.round((barH - GLYPH_H * titleScale) / 2),
-    titleScale,
-    COLOR.muted,
-  );
-
-  // Screen contents. `gap` is the space above each line; the block is centred vertically.
+  // `gap` is the space above each line; the block is centred vertically.
   const lines = [
-    { scale: 6, gap: 0, spans: [['mei@meiorz:~$', COLOR.prompt], [' whoami', COLOR.fg]] },
-    { scale: 16, gap: 36, spans: [['Mei Okubo', COLOR.fg]] },
-    { scale: 5, gap: 40, spans: [['CS student', COLOR.fg], [` ${MIDDLE_DOT} `, COLOR.muted], ['SWE intern candidate', COLOR.fg]] },
-    { scale: 5, gap: 18, spans: [['www.meiorz.tech', COLOR.accent]] },
-    { scale: 6, gap: 40, spans: [['mei@meiorz:~$ ', COLOR.prompt]], cursor: true },
+    { scale: 20, gap: 0, spans: [['meiorz', COLOR.fg]] },
+    { scale: 5, gap: 56, spans: [['CS student', COLOR.fg], [` ${MIDDLE_DOT} `, COLOR.muted], ['builds small tools', COLOR.fg]] },
+    { scale: 5, gap: 24, spans: [['www.meiorz.tech', COLOR.muted]] },
   ];
-  const padX = 56;
-  const left = inner.x + padX;
-  const right = inner.x + inner.w - padX;
-  const blockH = lines.reduce((sum, l) => sum + l.gap + GLYPH_H * l.scale, 0);
-  let y = bodyTop + Math.round((bodyBottom - bodyTop - blockH) / 2);
+  const rule = { w: 96, h: 10, gap: 44 }; // accent rule and the space under it
+  const left = 96;
+  const right = WIDTH - left;
+  const blockH = rule.h + rule.gap + lines.reduce((sum, l) => sum + l.gap + GLYPH_H * l.scale, 0);
+  let y = Math.round((HEIGHT - blockH) / 2);
+  cv.fillRect(left, y, rule.w, rule.h, COLOR.accent);
+  y += rule.h + rule.gap;
   for (const line of lines) {
     y += line.gap;
     let x = left;
     for (const [text, color] of line.spans) x = cv.drawText(text, x, y, line.scale, color);
-    let inkRight = x - line.scale;
-    if (line.cursor) {
-      cv.fillRect(x, y, GLYPH_W * line.scale, GLYPH_H * line.scale, COLOR.fg);
-      inkRight = x + GLYPH_W * line.scale;
-    }
-    if (inkRight > right) throw new Error(`make-og: line ${JSON.stringify(line.spans.map((s) => s[0]).join(''))} overflows`);
+    if (x - line.scale > right) throw new Error(`make-og: line ${JSON.stringify(line.spans.map((s) => s[0]).join(''))} overflows`);
     y += GLYPH_H * line.scale;
   }
   return cv;

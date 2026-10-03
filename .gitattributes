@@ -1,5 +1,8 @@
 # Keep new site files LF on every checkout (Linux bash/CI and Azure are case- and EOL-sensitive).
 site/** text=auto eol=lf
+res/** text=auto eol=lf
+firebase.json text eol=lf
+.firebaserc text eol=lf
 tools/** text=auto eol=lf
 .github/** text=auto eol=lf
 *.png binary

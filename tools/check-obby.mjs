@@ -646,7 +646,7 @@ const BROKEN_FIXTURES = [
   ['an undeclared type name', 'tiles: { Tile },', 'tiles: { Tyle },'],
   ['a tile kind outside TileKind', 'kind = "conveyor"', 'kind = "conveyer"'],
   ['a string where a number belongs', 'width = 60,', 'width = "60",'],
-  ['a field the type does not declare', 'version = 1,', 'version = 1,\n  verison = 2,'],
+  ['a field the type does not declare', 'version = 2,', 'version = 2,\n  verison = 3,'],
   ['a missing required field', '  cellStuds = 2.5,\n', ''],
   ['a function call in the data', 'width = 60,', 'width = math.floor(60),'],
   ['an unfinished string', '"Hello, World Hills"', '"Hello, World Hills'],
@@ -866,7 +866,7 @@ function course() {
   }
 }
 
-console.log('check-obby: can Mei\'s Mini Obby be finished?');
+console.log('check-obby: can Mini Obby be finished?');
 physics();
 lint();
 course();

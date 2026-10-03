@@ -1,5 +1,5 @@
 --!strict
--- obbycourse.luau: the course for Mei's Mini Obby.
+-- obbycourse.luau: the course for Mini Obby.
 --
 -- A Luau-flavored data module; this site's game parses it at runtime.
 -- The website (www.meiorz.tech, command `obby`) fetches this exact file and reads
@@ -14,7 +14,8 @@
 --
 -- GRID: rows[1] is the top row. One character is one cell; "." is air.
 -- Columns are 1-based, as in Luau. The "#" posts above checkpoints 2-4 are gates:
--- the only way into the next stage is through its checkpoint.
+-- the only way into the next stage is through its checkpoint. The "#" at the end of
+-- the last belt is a stop: the belt carries you to it, never off the edge.
 --
 -- tools/check-obby.mjs (in the site's repository) lints this file's structure and
 -- types (a small zero-dependency lint, not a Luau compiler) and proves with a
@@ -51,8 +52,8 @@ export type Course = {
 }
 
 local course: Course = {
-  name = "Mei's Mini Obby",
-  version = 1,
+  name = "Mini Obby",
+  version = 2,
   width = 60,
   height = 14,
   cellStuds = 2.5,
@@ -71,10 +72,10 @@ local course: Course = {
   },
 
   stages = {
-    { id = 1, name = "Hello, World Hills", fromCol = 1, toCol = 16, hint = "Hop the lava. Every program starts somewhere." },
-    { id = 2, name = "Garbage Collector Conveyor", fromCol = 17, toCol = 30, hint = "The belt drags you back. Jump the lava." },
-    { id = 3, name = "Jump-And-Link", fromCol = 31, toCol = 41, hint = "Step on J. jal saves a return address; gravity does not." },
-    { id = 4, name = "Branch Delay Summit", fromCol = 42, toCol = 60, hint = "Climb to F, the finish. Mind the delay slot." },
+    { id = 1, name = "Hello, World Hills", fromCol = 1, toCol = 16, hint = "Jump from ledge to ledge over the lava." },
+    { id = 2, name = "Garbage Collector Conveyor", fromCol = 17, toCol = 30, hint = "The belt pushes you left. Keep walking right and jump the two lava cells." },
+    { id = 3, name = "Jump-And-Link", fromCol = 31, toCol = 41, hint = "Step on J: it launches you 10 cells up. Steer right onto the ledge." },
+    { id = 4, name = "Branch Delay Summit", fromCol = 42, toCol = 60, hint = "Jump the lava, ride the belt right to the block, then jump up to F." },
   },
 
   rows = {
@@ -82,7 +83,7 @@ local course: Course = {
     ".........................................#................F.", -- 2
     ".........................................#..............####", -- 3
     "................#........................#..................", -- 4
-    "................#........................#.........>>>......", -- 5
+    "................#........................#.........>>>#.....", -- 5
     "................#........................4...^..............", -- 6
     "................#....................###########............", -- 7
     "................#.............#.............................", -- 8

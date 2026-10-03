@@ -1,0 +1,79 @@
+# Publishes site/ to Firebase Hosting (config: firebase.json, project: .firebaserc).
+#
+#   push to main        -> the live site (www.meiorz.tech once the custom domain is set up)
+#   PR opened / updated -> a preview channel; the action comments its URL on the PR
+#                          (preview channels expire on their own after 7 days)
+#
+# One-time setup (Firebase project, service-account secret, DNS) is in DEPLOY.md.
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Deny everything by default; the job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: firebase-${{ github.event.pull_request.number || github.ref }}
+  # A new push to a PR cancels its older preview deploy. Live deploys never cancel.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  deploy:
+    name: Check and deploy
+    # Runs that get no Actions secrets would fail, so skip them: PRs from forks
+    # (head repo check) and runs triggered by Dependabot. Do not switch to
+    # pull_request_target to work around this.
+    if: >-
+      github.event_name != 'pull_request' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      checks: write # the deploy action reports its result as a check
+      pull-requests: write # only used to comment the preview URL on the PR
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      # site/ must match res/ (strings and layouts): never publish stale pages.
+      - name: Check the pages are built from the string resources
+        run: node tools/build-site.mjs --check
+
+      # Privacy gate: never publish a site that fails the checks
+      # (forbidden personal data, CSP violations, broken links, budgets).
+      - name: Check site
+        run: node tools/check-site.mjs
+        env:
+          CHECK_SITE_PRIVATE_TERMS: ${{ secrets.CHECK_SITE_PRIVATE_TERMS }}
+
+      # The project comes from .firebaserc; firebase.json says what to publish.
+      - name: Deploy the live site
+        if: github.event_name != 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+
+      - name: Deploy a preview channel
+        if: github.event_name == 'pull_request'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          expires: 7d

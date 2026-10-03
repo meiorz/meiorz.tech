@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-labelledby="logo-title">
+  <title id="logo-title">meiorz.tech: a fox curled up asleep</title>
+  <!-- Original artwork for www.meiorz.tech: a fox curled into a ring, head at the top left,
+       tail sweeping up the right side.
+       One flat shape with two lines cut out of it, so it works as a single-color mark
+       (term.css uses it as a mask in the text color). -->
+  <defs>
+    <mask id="logo-cut">
+      <rect width="64" height="64" fill="#fff"/>
+      <g fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round">
+        <!-- closed eye -->
+        <path d="M20.5 19.5 q3.5 3 7.5 1.5"/>
+        <!-- the pale tip of the tail -->
+        <path d="M42.5 16 L57.5 11.5"/>
+      </g>
+    </mask>
+  </defs>
+  <path mask="url(#logo-cut)" fill="#141413" d="M35 4 C50 4 60 17 60 34 A28 28 0 0 1 4.3 37.9 C3 30 4 24 7 19 L4 9 L14 13 L18 2 L25 13 C30 14 34 18 36 23.5 C32 28 26 31 19.8 31.2 A14 14 0 1 0 43.4 26.6 C44.5 18 42 9 35 4 Z"/>
+</svg>

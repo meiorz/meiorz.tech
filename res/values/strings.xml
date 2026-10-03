@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  strings.xml: the copy for www.meiorz.tech, kept apart from markup and code the
+  way an Android app keeps it in res/values/strings.xml.
+
+    layouts (res/layout/*.html)   @string/name, and @array/name for <li> items
+    scripts (site/js/term.js)     stringResource(R.string.name, ...formatArgs)
+
+  tools/build-site.mjs renders the layouts into site/ and writes
+  site/js/strings.js with the strings the scripts reference. Rules:
+
+    - Names are snake_case and unique. Whitespace is collapsed, so long strings
+      can wrap. Write & as &amp; and use &#160; for a no-break space.
+    - A string may hold inline markup (a, code, strong, em, kbd) when it is used
+      as element content. Strings used in attributes, JSON-LD or scripts are
+      plain text.
+    - %1$s, %2$s ... are format arguments (scripts only).
+    - The build fails on unknown names and on strings nothing uses.
+-->
+<resources>
+
+    <!-- Site-wide -->
+    <string name="site_name">meiorz</string>
+    <string name="wordmark">Meiorz</string>
+    <string name="skip_to_content">Skip to content</string>
+    <string name="to_top">Back to top</string>
+    <string name="skip_to_prompt">Skip to command prompt</string>
+    <string name="nav_label">Sections</string>
+    <string name="nav_projects">Projects</string>
+    <string name="nav_skills">Skills</string>
+    <string name="nav_education">Education</string>
+    <string name="nav_experience">Experience</string>
+    <string name="nav_contact">Contact</string>
+    <string name="nav_play">Play</string>
+    <string name="footer_resume">resume.txt</string>
+    <string name="footer_llms">llms.txt</string>
+    <string name="footer_archive">Archive</string>
+    <string name="footer_note">No trackers. No cookies. · © 2026 meiorz</string>
+    <string name="link_email">business@meiorz.tech</string>
+    <string name="link_github">GitHub</string>
+    <string name="link_linkedin">LinkedIn</string>
+
+    <!-- Metadata -->
+    <string name="meta_title">meiorz — CS student building small tools</string>
+    <string name="meta_description">meiorz: CS student at City College of San Francisco and CS tutor, building browser and editor extensions.</string>
+    <string name="meta_og_description">CS student at City College of San Francisco and CS tutor. Builds Lull, a calm dark theme for Chrome, and HopOut, a tab-out extension for VS Code.</string>
+    <string name="meta_og_image_alt">The name meiorz in large letters above the line: CS student, builds small tools, www.meiorz.tech.</string>
+    <string name="meta_person_description">Computer science student at City College of San Francisco, Inspirit AI Scholar, CS tutor, and builder of Lull, a Chrome extension, and HopOut, a VS Code extension.</string>
+    <string name="meta_job_title">Computer Science Student</string>
+
+    <!-- Intro -->
+    <string name="intro_eyebrow">San Francisco, CA</string>
+    <string name="intro_headline">Hello World!</string>
+    <string name="intro_lede">I’m meiorz. I study computer science and linguistics, and I build small tools I want to use myself.</string>
+    <string name="intro_projects"><a href="#proj-lull">Lull</a> gives every website a calm dark theme. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code.</string>
+    <string name="intro_seeking">Seeking a software engineering internship for summer 2027.</string>
+    <string name="intro_action_email">Email me</string>
+    <string name="intro_action_resume">Read the résumé</string>
+    <string name="intro_action_github">GitHub</string>
+
+    <!-- Projects -->
+    <string name="projects_title">Projects</string>
+    <string name="projects_intro">What I’ve built, newest first.</string>
+
+    <string name="project_lull_title">Lull</string>
+    <string name="project_lull_summary">A Chrome extension that gives every website a soft, predictable dark theme. I designed it for autistic people and people with ADHD: no white flashes, no pure black or pure white, no vivid color, and no movement you did not ask for.</string>
+    <string-array name="project_lull_points">
+        <item>No white flash: the page is dark before any script runs, and a test records every painted frame to check it.</item>
+        <item>Colors are mapped in OKLCH. Backgrounds and text stay inside narrow bands and saturation is capped, so hue survives: a warning is still reddish and a link still bluish.</item>
+        <item>Calm by default: style-sheet animations stop, autoplay pauses and GIFs freeze until you ask for them. An optional reading ruler shades everything but the lines near the pointer.</item>
+        <item>No per-site fix list: CSS variables, cascade layers, nesting, shadow roots and style sheets on other origins are handled generically.</item>
+        <item>No account, analytics, remote code or server. No dependencies and no build step.</item>
+        <item>138 checks load the extension into real Chrome and look at what pages are like afterwards.</item>
+    </string-array>
+    <string name="project_lull_meta">JavaScript · Chrome extension (Manifest V3) · <a href="https://github.com/meiorz/lull">github.com/meiorz/lull</a></string>
+
+    <string name="project_hopout_title">HopOut</string>
+    <string name="project_hopout_summary">A VS Code extension that moves the cursor outside the nearest enclosing quote, bracket or paren. It puts that on <kbd>Tab</kbd>, but only where <kbd>Tab</kbd> has nothing better to do. Open source (MIT).</string>
+    <string-array name="project_hopout_points">
+        <item><kbd>Tab</kbd> hops past the closing delimiter ahead of the cursor, and <kbd>Shift</kbd>+<kbd>Tab</kbd> undoes the hop. <kbd>Ctrl</kbd>+<kbd>'</kbd> leaves the enclosing pair from anywhere inside it, across lines.</item>
+        <item>It stays out of the way: the key is gated on a context key, so an ordinary <kbd>Tab</kbd> never reaches the extension. It yields to suggestions, snippets and inline AI completions.</item>
+        <item>It scans the code structure (escaped quotes, nested brackets, comments, multi-character delimiters) instead of single characters, so it only ever hops out of a pair, never into one.</item>
+        <item>Works with multiple cursors, and pairs can be set per language.</item>
+        <item>Written after reading the issue trackers of the existing tab-out extensions; the README lists each reported problem and what HopOut does about it.</item>
+        <item>Unit tests cover the scanner, and integration tests press real keys inside VS Code.</item>
+    </string-array>
+    <string name="project_hopout_meta">TypeScript · VS Code extension · <a href="https://github.com/meiorz/hopout">github.com/meiorz/hopout</a></string>
+
+    <string name="project_bert_title">Tweet sentiment classification with BERT</string>
+    <string name="project_bert_summary">My Inspirit AI Scholar project from spring 2022, in Python and PyTorch.</string>
+    <string-array name="project_bert_points">
+        <item>Fine-tuned Google BERT on a labeled tweet corpus: preprocessing, tokenization, training and evaluation.</item>
+        <item>Presented the approach, results and error analysis at Inspirit AI Demo Day.</item>
+    </string-array>
+    <string name="project_bert_meta">Spring 2022 · Python · PyTorch · transformer models</string>
+
+    <!-- Skills -->
+    <string name="skills_title">Skills</string>
+    <string name="skills_languages_label">Languages</string>
+    <string name="skills_languages">C++, Java, Python, JavaScript, TypeScript, SQL, Kotlin, Bash/Shell, MIPS Assembly</string>
+    <string name="skills_systems_label">Systems</string>
+    <string name="skills_systems">Linux, Docker</string>
+    <string name="skills_tooling_label">Tooling</string>
+    <string name="skills_tooling">Git/GitHub, GitHub Actions (CI/CD), automated unit and integration testing, debugging, CLI development, code review</string>
+    <string name="skills_ai_label">AI &amp; data</string>
+    <string name="skills_ai">ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted development workflows</string>
+    <string name="skills_spoken_label">Spoken &amp; signed</string>
+    <string name="skills_spoken">English (fluent), Japanese (fluent), American Sign Language (limited to STEM communication)</string>
+
+    <!-- Education -->
+    <string name="education_title">Education</string>
+    <string name="education_summary"><strong>City College of San Francisco</strong>, since summer 2022: Computer Science, and linguistics through American Sign Language.</string>
+    <string name="education_inspirit"><strong>Inspirit AI</strong>: AI Scholar program, completed April 2022.</string>
+    <string name="education_done_label">Done:</string>
+    <string name="education_course_cs110c">CS 110C — Data Structures &amp; Algorithms in C++ (ADTs)</string>
+    <string name="education_course_cs111c">CS 111C — Data Structures &amp; Algorithms in Java (ADTs)</string>
+    <string name="education_course_cs270">CS 270 — Computer Architecture &amp; Assembly (MIPS)</string>
+    <string name="education_other">Other coursework: Calculus I–II (MATH 110A/110B).</string>
+    <string name="education_certifications_title">Certifications</string>
+    <string-array name="education_certifications">
+        <item>AI Scholar, Inspirit AI — Apr 2022</item>
+        <item>Microsoft Certified: Azure AI Fundamentals (AI-900) — Oct 2021</item>
+        <item>Microsoft Certified: Azure Data Fundamentals (DP-900) — Aug 2021</item>
+        <item>Microsoft Certified: Azure Fundamentals (AZ-900) — Jul 2021</item>
+        <item>Microsoft 365 Certified: Fundamentals (MS-900) — Jun 2021</item>
+    </string-array>
+
+    <!-- Experience -->
+    <string name="experience_title">Experience</string>
+    <string name="experience_tutor_title">Computer Science Tutor / Teaching Assistant</string>
+    <string name="experience_tutor_meta">City College of San Francisco · Sep 2024 – present</string>
+    <string-array name="experience_tutor_points">
+        <item>Tutor one or two students a week.</item>
+        <item>Debug student code live in C++, Java and Python.</item>
+        <item>Explain the reasoning rather than handing over the fix.</item>
+        <item>Translate complex concepts for students with varied backgrounds.</item>
+    </string-array>
+    <string name="experience_inspirit_title">Inspirit AI — Ambassador &amp; AI Scholar alum</string>
+    <string name="experience_inspirit_meta">Mar 2023 – Aug 2024</string>
+    <string-array name="experience_inspirit_points">
+        <item>Reached out to more than 100 people, inviting them to join the upcoming AI Scholar curriculum.</item>
+    </string-array>
+
+    <!-- Contact -->
+    <string name="contact_title">Contact</string>
+    <string name="contact_email_label">Email</string>
+    <string name="contact_github_label">GitHub</string>
+    <string name="contact_github">github.com/meiorz</string>
+    <string name="contact_linkedin_label">LinkedIn</string>
+    <string name="contact_linkedin">linkedin.com/in/mei-o-525a0b227</string>
+    <string name="contact_resume_label">Résumé</string>
+    <string name="contact_resume_note">(plain text)</string>
+    <string name="contact_seeking_label">Seeking</string>
+    <string name="contact_seeking">A software engineering internship for summer 2027</string>
+    <string name="contact_location_label">Location</string>
+    <string name="contact_location">San Francisco, CA</string>
+
+    <!-- Play -->
+    <string name="play_title">Play</string>
+    <string name="play_intro">This site used to be a terminal, and a small one still lives here. It runs two programs.</string>
+    <string name="play_needs_js">The terminal and its games need JavaScript.</string>
+    <string name="play_obby_title">obby · tiny platformer</string>
+    <string name="play_obby_body">Mini Obby: a small obstacle course on a text grid, with checkpoints, conveyors and jump pads. It’s Luau-flavored but written in JavaScript: the course itself is a real Luau module, parsed at runtime. Not affiliated with Roblox.</string>
+    <string name="play_obby_run">run obby</string>
+    <string name="play_obby_source">read obbycourse.luau</string>
+    <string name="play_cli_title">meiorz-cli · scripted command line</string>
+    <string name="play_cli_body">meiorz-cli answers questions about this site and its projects. It is scripted: no AI and no network calls, and every reply is pre-written.</string>
+    <string name="play_cli_run">run meiorz-cli</string>
+
+    <!-- Terminal (markup) -->
+    <string name="terminal_label">Terminal</string>
+    <string name="terminal_output_label">Terminal output</string>
+    <string name="terminal_command_label">Command</string>
+    <string name="terminal_hint">Type <kbd>help</kbd> · <kbd>↑</kbd>/<kbd>↓</kbd> history · <kbd>Tab</kbd> completes · <kbd>Ctrl</kbd>+<kbd>L</kbd> clears</string>
+
+    <!-- 404 page -->
+    <string name="not_found_meta_title">Not found · meiorz.tech</string>
+    <string name="not_found_title">This page isn’t here.</string>
+    <string name="not_found_body">It may have moved when the site was rebuilt, or the link has a typo.</string>
+    <string name="not_found_home"><a href="/">Home</a>: projects, skills, experience and contact</string>
+    <string name="not_found_resume"><a href="/resume.txt">resume.txt</a>: the résumé as plain text</string>
+    <string name="not_found_archive"><a href="/archive/">Archive</a>: blog posts and the home page from the previous site</string>
+    <string name="not_found_help">Looking for something specific? Email <a href="mailto:business@meiorz.tech">business@meiorz.tech</a>.</string>
+
+    <!-- Shell: site/js/term.js -->
+    <string name="term_cmd_whoami_about">who is this?</string>
+    <string name="term_cmd_projects_about">what I’m building (same as ls projects/)</string>
+    <string name="term_cmd_skills_about">languages, systems, tooling, AI and data</string>
+    <string name="term_cmd_education_about">City College of San Francisco courses and certifications</string>
+    <string name="term_cmd_experience_about">tutoring and outreach</string>
+    <string name="term_cmd_asl_about">American Sign Language</string>
+    <string name="term_cmd_contact_about">email, GitHub, LinkedIn</string>
+    <string name="term_cmd_hire_about">the shortest path to an email</string>
+    <string name="term_cmd_ls_about">list files (try ls projects/)</string>
+    <string name="term_cmd_ls_more">Lists the files in ~ (/home/meiorz) or in a directory: projects/, games/, obby/ or archive/. Click a name to open it. ls -a also lists hidden files. Other flags such as -l are accepted and ignored.</string>
+    <string name="term_cmd_cat_about">print a file (try cat skills.txt)</string>
+    <string name="term_cmd_cat_more">Prints a file. Try cat skills.txt, cat projects/lull.md or cat obby/obbycourse.luau. Tab completes file names.</string>
+    <string name="term_cmd_resume_about">print resume.txt</string>
+    <string name="term_cmd_resume_more">Prints /resume.txt, the plain-text résumé. The same file is linked in the intro and the footer.</string>
+    <string name="term_cmd_open_about">open a link in a new tab (resume, github, linkedin, archive, lull, hopout)</string>
+    <string name="term_cmd_open_more">Opens resume, github, linkedin, archive, lull or hopout in a new tab. If your browser blocks the new tab, use the printed link.</string>
+    <string name="term_cmd_games_about">what you can play here</string>
+    <string name="term_cmd_obby_about">tiny platformer: play Mini Obby</string>
+    <string name="term_cmd_obby_more">A small obstacle course on a text grid. Luau-flavored, written in JavaScript: the course data is a real Luau module parsed at runtime (cat obby/obbycourse.luau). Keys: Left/Right or A/D move, Space/Up/W jump, R restart, Esc quit. Touch buttons are included.</string>
+    <string name="term_cmd_cli_about">scripted command line about this site</string>
+    <string name="term_cmd_cli_more">meiorz-cli answers questions about this site and its projects. It is scripted: no AI and no network calls, and every reply is pre-written. Type /help inside it and /exit to leave.</string>
+    <string name="term_cmd_help_about">this list</string>
+    <string name="term_cmd_help_more">Lists every command. Keys: Up/Down history, Tab completes, Ctrl+L clears, Ctrl+C cancels the line, Esc clears the line.</string>
+    <string name="term_cmd_man_about">the manual for one command</string>
+    <string name="term_cmd_history_about">commands you have typed</string>
+    <string name="term_cmd_history_more">Lists the commands typed in this tab. Nothing is saved or sent anywhere.</string>
+    <string name="term_cmd_clear_about">clear the output (Ctrl+L)</string>
+    <string name="term_cmd_clear_more">Clears the terminal output. The page above it stays where it is. Same as Ctrl+L.</string>
+    <string name="term_cmd_theme_about">switch colors</string>
+    <string name="term_cmd_theme_more">With no argument, shows the current theme. auto follows your system setting. The choice is saved in this browser only (localStorage) and never sent anywhere.</string>
+    <string name="term_cmd_motion_about">turn animations on or off</string>
+    <string name="term_cmd_motion_more">motion off stops animations and smooth scrolling. motion on allows them again, unless your system asks for reduced motion. Saved in this browser only.</string>
+    <string name="term_cmd_echo_about">print text</string>
+    <string name="term_cmd_date_about">show the date</string>
+    <string name="term_cmd_pwd_about">print the working directory</string>
+    <string name="term_cmd_cd_about">change directory (sort of)</string>
+    <string name="term_cmd_sudo_about">try it</string>
+    <string name="term_cmd_exit_about">leave</string>
+    <string name="term_ps1">meiorz:~$</string>
+    <string name="term_scrollable_label">Scrollable text</string>
+    <string name="term_output_cleared">Output cleared.</string>
+    <string name="term_error_module">%1$s: something went wrong (%2$s). Back to the shell.</string>
+    <string name="term_error_section">%1$s: section not found</string>
+    <string name="term_cat_missing">cat: %1$s: No such file or directory</string>
+    <string name="term_plain_file">Plain file: %1$s</string>
+    <string name="term_cat_load_failed">cat: %1$s: could not load it (%2$s). Plain file: %3$s</string>
+    <string name="term_cat_is_dir">cat: %1$s: Is a directory</string>
+    <string name="term_cat_is_program">cat: %1$s: that’s a program, not a text file. Run it: %2$s</string>
+    <string name="term_cat_unreadable">cat: %1$s: cannot read this file</string>
+    <string name="term_loading">Loading %1$s…</string>
+    <string name="term_error_load">%1$s: couldn’t load the program (%2$s). You’re still in the shell.</string>
+    <string name="term_error_no_start">%1$s: this program has no start() function. You’re still in the shell.</string>
+    <string name="theme_toggle">Theme: %1$s</string>
+    <string name="term_group_sections">Sections</string>
+    <string name="term_group_files">Files</string>
+    <string name="term_group_play">Play</string>
+    <string name="term_group_shell">Shell</string>
+    <string name="term_theme_usage">Usage: theme light | dark | auto</string>
+    <string name="term_asl_body_1">American Sign Language (ASL) is a language I can use, limited to STEM communication.</string>
+    <string name="term_asl_body_3">I’m fluent in English and Japanese. More: %1$s.</string>
+    <string name="term_hire_links">Email: %1$s · résumé: %2$s</string>
+    <string name="term_hire_subject">Hello from meiorz.tech</string>
+    <string name="term_ls_missing">ls: cannot access '%1$s': No such file or directory</string>
+    <string name="term_ls_own_part">%1$s is its own part of the site: %2$s</string>
+    <string name="term_img_portrait_alt">A self-portrait I drew: dark hair to the shoulders with blond tips, one eye covered by the fringe, a gray blazer over a white shirt, on a lilac background.</string>
+    <string name="term_img_pixel_pale_alt">One of my Minecraft icons: a pale gray pixel face.</string>
+    <string name="term_img_pixel_ender_alt">One of my Minecraft icons: a black pixel face with glowing magenta eyes.</string>
+    <string name="term_cat_no_operand">cat: missing file operand. Try: cat skills.txt</string>
+    <string name="term_open_unknown">open: unknown target '%1$s'. Try: open resume | github | linkedin | archive | lull | hopout</string>
+    <string name="term_open_no_target">open: missing target. Try: open resume | github | linkedin | archive | lull | hopout</string>
+    <string name="term_open_opening">Opening %1$s in a new tab: %2$s</string>
+    <string name="term_history_empty">No history yet.</string>
+    <string name="term_history_label">Command history</string>
+    <string name="term_theme_current_auto">theme: auto (your system prefers %1$s). %2$s</string>
+    <string name="term_theme_current">theme: %1$s. %2$s</string>
+    <string name="term_theme_unknown">theme: unknown theme '%1$s'. %2$s</string>
+    <string name="term_theme_set_auto">theme: auto (following your system)</string>
+    <string name="term_theme_set">theme: %1$s</string>
+    <string name="term_motion_os_note">Your system asks for reduced motion, so animations stay off.</string>
+    <string name="term_motion_current">motion: %1$s.%2$s Usage: motion on | off</string>
+    <string name="term_motion_unknown">motion: expected on or off, got '%1$s'</string>
+    <string name="term_motion_off">motion: off. Animations and smooth scrolling are disabled.</string>
+    <string name="term_motion_on">motion: on.%1$s</string>
+    <string name="term_cd">there’s no place like ~</string>
+    <string name="term_sudo">meiorz is not in the sudoers file. This incident will be reported to… nobody. No trackers here.</string>
+    <string name="term_exit">There’s no logout here: this terminal is part of a web page. Close the tab whenever you like. Thanks for stopping by!</string>
+    <string name="term_help_intro">Click a command or type it.</string>
+    <string name="term_help_man">man &lt;command&gt; explains one.</string>
+    <string name="term_help_aliases">(also: %1$s)</string>
+    <string name="term_help_keys">Keys: %1$s/%2$s history · %3$s completes · %4$s+%5$s clears · %6$s+%7$s cancels · %8$s clears the line</string>
+    <string name="term_man_which">What manual page do you want? Try: %1$s</string>
+    <string name="term_man_missing">No manual entry for %1$s</string>
+    <string name="term_not_found">command not found: %1$s — try %2$s</string>
+    <string name="term_did_you_mean">did you mean %1$s?</string>
+    <string name="term_completions">%1$s completions: %2$s</string>
+    <string name="term_theme_status_auto">Theme: auto, following your system.</string>
+    <string name="term_theme_status">Theme: %1$s.</string>
+    <string name="term_welcome">Type or click %1$s to see what this terminal can do.</string>
+    <string name="term_placeholder">type help</string>
+
+</resources>

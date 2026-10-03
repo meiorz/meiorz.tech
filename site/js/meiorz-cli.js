@@ -1,8 +1,8 @@
 /**
- * meii.js: "Mei I?" (`meii`), a scripted parody of an agentic coding CLI.
+ * meiorz-cli.js: `meiorz-cli`, a scripted command line about this site.
  * ES module, lazy-loaded by term.js. No AI: a keyword table picks pre-written
  * replies and the spinner is a timer. No network requests, no storage, no
- * product names or logos: not affiliated with any AI company.
+ * product names or logos.
  *
  * Each reply is ONE term.print(), so the log (a live region) reads it once.
  * The spinner is aria-hidden and static under reduced motion. Menus are ARIA
@@ -10,19 +10,21 @@
  * The footer under the prompt goes through term.setHint(), never #cmd-help.
  */
 
+import { R } from './strings.js';
+
 const EMAIL = 'business@meiorz.tech';
-const MAILTO = `mailto:${EMAIL}?subject=${encodeURIComponent('Summer 2027 internship')}`;
-const FOOTER_SHORT = 'Parody · not affiliated with any AI company';
-const FOOTER_MORE = ' · no AI, no network calls — every reply is pre-written';
+const MAILTO = `mailto:${EMAIL}?subject=${encodeURIComponent('Hello from meiorz.tech')}`;
+const FOOTER_SHORT = 'Scripted · no AI';
+const FOOTER_MORE = ' · no network calls — every reply is pre-written';
 const FOOTER = FOOTER_SHORT + FOOTER_MORE;
 const FRAMES = [...'⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'];
-const THINK_MS = [800, 2200]; // how long the not-AI "thinks"
+const THINK_MS = [800, 2200]; // how long a reply takes to appear
 
 /** Spinner verbs as [working, done]: original, none borrowed from a real product. */
 const VERBS = [
   ['Dereferencing', 'Dereferenced'], ['Garbage-collecting', 'Garbage-collected'], ['Branch-delaying', 'Branch-delayed'],
   ['Fingerspelling', 'Fingerspelled'], ['Rubber-ducking', 'Rubber-ducked'], ['Rigging', 'Rigged'],
-  ['Blob-guarding', 'Blob-guarded'], ['Segfault-dodging', 'Segfault-dodged'], ['Obby-hopping', 'Obby-hopped'],
+  ['Segfault-dodging', 'Segfault-dodged'], ['Obby-hopping', 'Obby-hopped'],
   ['Stack-unwinding', 'Stack-unwound'],
 ];
 /** The (purely cosmetic) mode indicator under the prompt; Shift+Tab cycles it. */
@@ -35,13 +37,13 @@ const TEXT = {
     stop: 'Interrupted · what should the not-AI do instead?',
     keys: '↑/↓ + Enter, or a number · Esc = no',
     cancel: 'Cancelled.',
-    bye: 'Mei I? exited · $0.00 · nothing you typed left this page. Back to the real shell.',
+    bye: 'meiorz-cli exited · $0.00 · nothing you typed left this page. Back to the real shell.',
     fallback: [
       'I’m a switch statement in a trench coat. Try /help.',
-      'No keyword matched. Try: who is mei, experience, projects, fix my segfault.',
-      'That’s outside my script. Mei’s range is wider: /resume.',
+      'No keyword matched. Try: who is this, experience, projects, fix my segfault.',
+      'That’s outside my script. meiorz’s range is wider: /resume.',
     ],
-    rm: ['Bash command', 'Permanently remove node_modules from this workspace', 'Mei I proceed?',
+    rm: ['Bash command', 'Permanently remove node_modules from this workspace', 'May I proceed?',
       ['Yes', 'Yes, and in every repo', 'No, leave it']],
     hire: ['Open email', '', `Open your email app to write to ${EMAIL}?`, ['Yes', 'Yes, after the obby', 'No, just browsing']],
   },
@@ -50,24 +52,24 @@ const TEXT = {
     stop: '中断しました · AI ではない私に、代わりに何をしてほしいですか？',
     keys: '↑/↓ + Enter、または数字 · Esc =「いいえ」',
     cancel: 'キャンセルしました。',
-    bye: 'Mei I? を終了しました · $0.00 · 入力した内容はこのページから出ていません。本物のシェルに戻ります。',
+    bye: 'meiorz-cli を終了しました · $0.00 · 入力した内容はこのページから出ていません。本物のシェルに戻ります。',
     fallback: ['私はトレンチコートを着た switch 文です。/help をどうぞ。'],
     rm: ['Bash コマンド', 'このワークスペースから node_modules を完全に削除します', '続行しますか？',
       ['はい', 'はい、全リポジトリで', 'いいえ、そのままにする']],
     lang: ['言語', '表示言語を日本語に切り替えます', '続行しますか？', ['はい', 'いいえ']],
-    on: '日本語モードにしました。一部のメニューとシステムメッセージが日本語になります（台本の返事は英語のまま）。Mei は英語と日本語が堪能で、アメリカ手話（ASL）の通訳もしています。/lang en で英語に戻ります。',
+    on: '日本語モードにしました。一部のメニューとシステムメッセージが日本語になります（台本の返事は英語のまま）。meiorz は英語と日本語が堪能で、STEM 分野に限ってアメリカ手話（ASL）も使えます。/lang en で英語に戻ります。',
     off: 'わかりました。英語のままにします。',
   },
 };
 
 const SLASH = [
-  ['help', 'this list'], ['resume', 'not that kind of resume: Mei’s résumé'], ['skills', 'everything on the CV'],
-  ['obby', 'leave the parody, play the obby'], ['cost', 'what this session cost'],
-  ['clear', 'clear the screen'], ['hire', 'write to Mei'], ['lang ja', 'Japanese menus · /lang en switches back'], ['exit', 'back to the real shell'],
+  ['help', 'this list'], ['resume', 'not that kind of resume: meiorz’s résumé'], ['skills', 'everything on the CV'],
+  ['obby', 'leave the CLI, play the obby'], ['cost', 'what this session cost'],
+  ['clear', 'clear the screen'], ['hire', 'write to meiorz'], ['lang ja', 'Japanese menus · /lang en switches back'], ['exit', 'back to the real shell'],
 ];
-const WELCOME_TRY = ['who is mei', 'experience', 'fix my segfault', 'rm -rf node_modules', '/help'];
-const TRY = ['who is mei', 'experience', 'projects', 'data structures', 'fix my segfault', 'now in java', 'explain jal',
-  'scan my storage', 'rm -rf node_modules', 'translate this to ASL', 'go live', 'are you an AI?', 'ultrathink'];
+const WELCOME_TRY = ['who is this', 'experience', 'fix my segfault', 'rm -rf node_modules', '/help'];
+const TRY = ['who is this', 'experience', 'projects', 'data structures', 'fix my segfault', 'now in java', 'explain jal',
+  'rm -rf node_modules', 'are you an AI?', 'ultrathink'];
 
 /** The keyword table: [pattern, reply]. Runs on normalize(line); the first match wins. */
 const RULES = [
@@ -75,8 +77,8 @@ const RULES = [
   [/^(help\b|h$)/, 'help'],
   [/^(clear|cls)$/, 'clear'],
   [/node ?modules|procrastinat/, 'rm'], // before the shell rule: normalize() turns "./node_modules" into "node modules"
-  [/^(sudo|rm|meii|ls|cd|cat|pwd|git|npm|vim)\b/, 'shell'],
-  [/^(hi|hello|hey)( there| mei)?$|こんにちは/, 'hello'],
+  [/^(sudo|rm|meiorz cli|ls|cd|cat|pwd|git|npm|vim)\b/, 'shell'],
+  [/^(hi|hello|hey)( there)?$|こんにちは/, 'hello'],
   [/^(nice|cool|great|awesome|love|neat|thanks|thank you|wow)\b/, 'compliment'],
   [/\b(are you (an? )?(ai|bot|human|real)|llm|model)\b|^(who|what) are you$/, 'ai'],
   [/\b(ultrathink|think harder)\b/, 'ultrathink'],
@@ -89,116 +91,97 @@ const RULES = [
   [/\b(jal|mips|assembly|delay slot|cs ?270)\b/, 'mips'],
   [/\b(data structures?|algorithms?|adts?|dsa)\b/, 'dsa'],
   [/\b(tutor\w*|teach\w*|ta|homework|assignment|do my)\b/, 'tutor'],
-  [/\b(school|college|ccsf|educat\w*|degree|transfer\w*|igetc|universit\w*|calculus|(az|ms|ai|dp) ?900|class(es)?|courses?|stud(y|ies|ent)|cert\w*)\b/, 'education'],
-  [/\b(projects?|portfolio|work(ed|ing) on|android|agentic)\b/, 'projects'],
-  [/\b(blobguard|scan\w*|storage|blobs?|azure|aws|gcp|cloud|security)\b/, 'blobguard'],
-  [/\b(asl|amsl|sign( language)?|signing|interpret\w*|fingerspell\w*|translate|deaf)\b/, 'asl'],
+  [/\b(school|college|ccsf|educat\w*|degree|universit\w*|calculus|(az|ms|ai|dp) ?900|class(es)?|courses?|stud(y|ies|ent)|cert\w*)\b/, 'education'],
+  [/\b(projects?|portfolio|work(ed|ing) on|lull|hop ?out|extensions?|dark (mode|theme))\b/, 'projects'],
+  [/\b(asl|sign( language)?|signing|interpret\w*|fingerspell\w*|translate|deaf)\b/, 'asl'],
   [/\bjapanese\b|日本語/, 'japanese'],
-  [/\b(go live|stream\w*|vtub\w*|twitch|obs|avatar|relaunch\w*|followers?|creator (app|automation)|automation app|cross ?post\w*)\b/, 'stream'],
   [/\b(bert|sentiment|nlp|pytorch|ml|machine learning|inspirit)\b/, 'bert'],
   [/\b(this site|website|csp|meiorz|accessib\w*)\b/, 'site'],
   [/\b(skills?|languages?|stack|python|kotlin|sql|docker|terraform|linux)\b|(^| )c\+\+( |$)/, 'skills'],
   [/\b(obby|games?|play|luau)\b/, 'obby'],
   [/\b(contact|e ?mail|linkedin|github)\b/, 'contact'],
-  [/^whoami$|\b(who|mei|okubo|about|bio|where)\b/, 'who'],
+  [/^whoami$|\b(who|about|bio|where)\b/, 'who'],
 ];
 
 /**
  * Scripted replies: a string, an array or a function returning one ({ lang, lines }
- * for Japanese). Strings become "● " lines. Claims about Mei come only from the
- * site's facts sheet; tool calls ("● Read(...)") are props.
+ * for Japanese). Strings become "● " lines. Claims about the site’s owner come only from the
+ * site's facts sheet (shared lists come from the string resources, ./strings.js);
+ * tool calls ("● Read(...)") are props.
  */
 const REPLIES = {
   who: (s) => [
-    s.tool('Read', 'about.md'), s.result('Read 4 paragraphs'),
-    'Mei Okubo: Computer Science transfer student at City College of San Francisco (target: junior transfer, Fall 2028), CS tutor/TA since Sep 2024, ASL interpreter in STEM settings, VTuber preparing a relaunch, and the human behind this “agent”. Based in San Francisco, CA; seeking Summer 2027 software engineering internships.',
+    s.tool('Bash', 'whoami'),
+    'meiorz: Computer Science student at City College of San Francisco, Inspirit AI Scholar, CS tutor/TA since Sep 2024, and the human behind this “agent”. Based in San Francisco, CA.',
     s.say('More: ', s.join(['experience', 'projects', 'skills', '/resume', '/hire'].map((q) => s.btn(q)))),
   ],
   experience: (s) => [
     s.tool('Read', 'experience.md'), s.result('Read 3 roles'),
     'CS Tutor / Teaching Assistant at City College of San Francisco, Sep 2024 – present: debugs student code live in C++, Java and Python, explains the reasoning instead of handing over the fix, and translates complex concepts for students with varied backgrounds.',
-    'ASL interpreting in STEM settings; working toward the CCSF ASL certificate (AMSL 2B), expected Fall 2027.',
-    'Inspirit AI Ambassador & AI Scholar alum, Mar 2023 – present: AI and STEM education outreach, 100+ community contacts.',
-    'Seeking Summer 2027 software engineering internships. Full details: /resume · /hire',
+    'Inspirit AI Ambassador & AI Scholar alum, Mar 2023 – Aug 2024: reached out to more than 100 people, inviting them to join the upcoming AI Scholar curriculum.',
+    'Full details: /resume · /hire',
   ],
   dsa: (s) => [
     s.tool('Read', 'education.md'), s.result('Found 3 courses'),
     'Data structures & algorithms, twice: CS 110C in C++ and CS 111C in Java, both covering ADTs. Also CS 270, Computer Architecture & Assembly (MIPS).',
-    s.say('As a CS tutor, Mei debugs this kind of code live with students. Demos: ',
+    s.say('As a CS tutor, meiorz debugs this kind of code live with students. Demos: ',
       s.join(['fix my segfault', 'now in java', 'explain jal'].map((q) => s.btn(q)))),
   ],
-  why: 'Mei is applying for Summer 2027 software engineering internships. The obby is a small tribute to obbies everywhere: /obby (leaves the parody).',
-  ai: 'No. I’m a keyword table and a switch statement in a trench coat: no model, no network calls, and nothing you type leaves this page. The human is Mei: /resume.',
+  why: 'The obby is a small tribute to obbies everywhere: /obby (leaves the CLI).',
+  ai: 'No. I’m a keyword table and a switch statement in a trench coat: no model, no network calls, and nothing you type leaves this page. The human is meiorz: /resume.',
   ultrathink: (s) => ['Conclusion: this switch statement has no default case. Adding one.', s.result('It already had one. You’re reading it.')],
-  resume: (s) => [s.say('Not that kind of resume. This one is Mei’s résumé, in plain text: ', s.link('/resume.txt', 'resume.txt'))],
+  resume: (s) => [s.say('Not that kind of resume. This one is meiorz’s résumé, in plain text: ', s.link('/resume.txt', 'resume.txt'))],
   segfault: (s) => [
     s.tool('Update', 'linked_list.cpp'),
     s.result('Added 3 lines, removed 2 lines', s.diff([['-', 17, '  delete head;'], ['-', 18, '  head = head->next;'],
       ['+', 17, '  Node* next = head->next;'], ['+', 18, '  delete head;'], ['+', 19, '  head = next;']])),
-    'Use-after-free: line 18 dereferenced head after line 17 deleted it. Tutor mode would have asked first: why did line 18 crash? Mei tutors C++, Java and Python; the explaining is the point.',
+    'Use-after-free: line 18 dereferenced head after line 17 deleted it. Tutor mode would have asked first: why did line 18 crash? meiorz tutors C++, Java and Python; the explaining is the point.',
   ],
   java: (s) => [
     s.tool('Write', 'LinkedStack.java'),
     s.result('Wrote 4 lines', s.diff(['T pop() {', '  T item = head.item;', '  head = head.next; // old node: GC', '  return item; }']
       .map((line, i) => ['+', i + 1, line]))),
-    'Same ADT, no delete: the garbage collector reclaims the old node. Mei’s data structures courses covered ADTs in C++ (CS 110C) and Java (CS 111C).',
+    'Same ADT, no delete: the garbage collector reclaims the old node. meiorz’s data structures courses covered ADTs in C++ (CS 110C) and Java (CS 111C).',
   ],
   mips: (s) => [
     s.tool('Bash', 'spim -file hello.s'), s.result('Hello, obby!'),
     'jal saves the return address in $ra and jumps; jr $ra comes back. On classic MIPS, the delay slot after a jump runs anyway (CS 270).',
   ],
-  tutor: 'Since Sep 2024, Mei has tutored CS at City College of San Francisco: live debugging in C++, Java and Python, explaining the reasoning instead of handing over the fix. So no homework from me either. Which line is confusing?',
+  tutor: 'Since Sep 2024, meiorz has tutored CS at City College of San Francisco: live debugging in C++, Java and Python, explaining the reasoning instead of handing over the fix. So no homework from me either. Which line is confusing?',
   education: (s) => [
     s.tool('Read', 'education.md'),
-    'Computer Science transfer student at City College of San Francisco, completing IGETC and CS major-preparation coursework for a junior transfer, target Fall 2028. Also Calculus I–II.',
-    s.todos([['CS 110C · Data Structures & Algorithms in C++', 1], ['CS 111C · Data Structures & Algorithms in Java', 1],
-      ['CS 270 · Computer Architecture & Assembly (MIPS)', 1], ['IGETC + CS major preparation · in progress', 0],
-      ['Junior transfer · target Fall 2028', 0], ['CCSF ASL certificate · AMSL 2B, expected Fall 2027', 0]]),
-    'Certifications: AI Scholar, Inspirit AI (Apr 2022); Microsoft Certified: Azure AI Fundamentals (AI-900, Oct 2021), Azure Data Fundamentals (DP-900, Aug 2021) and Azure Fundamentals (AZ-900, Jul 2021); Microsoft 365 Certified: Fundamentals (MS-900, Jun 2021).',
+    'Computer Science at City College of San Francisco. Also Calculus I–II.',
+    s.todos([R.string.education_course_cs110c, R.string.education_course_cs111c, R.string.education_course_cs270].map((course) => [course, 1])),
+    `Certifications: ${R.array.education_certifications.join('; ')}.`,
   ],
   projects: (s) => [
     s.tool('Bash', 'ls -l projects/'),
-    s.say('BlobGuard: an AI-assisted (agentic) engineering project on a real problem, cloud storage security. Open-source (MIT), read-only Python CLI; built with an AI-assisted (agentic coding) workflow. Demo: ', s.btn('scan my storage')),
-    s.say('Tweet sentiment with BERT: Inspirit AI Scholar project (Python, PyTorch), presented at Demo Day. More: ', s.btn('bert')),
-    s.say('This site: terminal-style, accessible, strict CSP, no trackers. More: ', s.btn('this site')),
-    s.say('Work in progress: a creator automation app that schedules and cross-posts content for Mei’s VTuber relaunch. More: ', s.btn('go live')),
-    'Also in progress, details coming soon: an Android app (Kotlin), AI-assisted security research and an agentic terminal CLI app (not me; I’m the parody).',
+    s.say('Lull: a Chrome extension that gives every website a soft, predictable dark theme, with no white flash. ', s.link('https://github.com/meiorz/lull', 'github.com/meiorz/lull')),
+    s.say('HopOut: a VS Code extension that hops the cursor out of the nearest quote, bracket or paren (MIT). ', s.link('https://github.com/meiorz/hopout', 'github.com/meiorz/hopout')),
+    s.say('Tweet sentiment with BERT: Inspirit AI Scholar project from spring 2022 (Python, PyTorch), presented at Demo Day. More: ', s.btn('bert')),
   ],
-  blobguard: (s) => [
-    s.tool('Bash', 'blobguard scan'),
-    s.result('[demo output · no cloud was touched]', 'PASS   anonymous blob access disabled', 'FAIL   shared key access enabled',
-      'ERROR  soft delete: could not confirm'),
-    'BlobGuard is Mei’s AI-assisted (agentic) engineering project on a real problem: cloud storage security. Mei owns and directs it, and it’s built with an AI-assisted (agentic coding) workflow.',
-    'It’s an open-source (MIT), read-only scanner: management APIs only, never object contents. Every finding carries evidence and a remediation, and a check it can’t confirm reports error, never pass.',
-    s.say('Azure adapter in progress; AWS and GCP planned. ', s.link('https://github.com/meiorz/blobguard', 'github.com/meiorz/blobguard')),
-  ],
-  asl: 'I can’t sign; I don’t have hands. Mei can, and interprets American Sign Language in STEM settings, where a term without an established sign often gets fingerspelled: P-O-L-Y-M-O-R-P-H-I-S-M. Mei is also working toward the CCSF ASL certificate (AMSL 2B), expected Fall 2027.',
-  japanese: 'Mei is fluent in English and Japanese, and also interprets American Sign Language. Try /lang ja.',
-  stream: (s) => [
-    s.tool('Bash', 'obs --startstreaming'), s.result('[placeholder] scene: "Starting Soon" · avatar rig: coming soon · mic: on (probably)'),
-    'Not live yet: Mei is a VTuber (an anime-style avatar persona) preparing a relaunch. Rigging, OBS, editing and stream-language details: coming soon.',
-    'Work in progress: a creator automation app that schedules and cross-posts content for the relaunch, using each platform’s official APIs, built in public.',
-  ],
+  asl: 'I can’t sign; I don’t have hands. meiorz can: American Sign Language, limited to STEM communication, where a term without an established sign often gets fingerspelled: P-O-L-Y-M-O-R-P-H-I-S-M.',
+  japanese: 'meiorz is fluent in English and Japanese, and can use American Sign Language for STEM communication. Try /lang ja.',
   bert: (s) => [
     s.tool('Read', 'projects/bert-sentiment.md'), s.result('Read 1 project'),
-    'Mei’s Inspirit AI Scholar project (Python, PyTorch): fine-tuned Google BERT on labeled tweets and presented the results and error analysis at Demo Day. Mei is also an Inspirit AI Ambassador (since Mar 2023). I classify sentiment with a regex.',
+    'meiorz’s Inspirit AI Scholar project from spring 2022 (Python, PyTorch): fine-tuned Google BERT on labeled tweets and presented the results and error analysis at Demo Day. meiorz was also an Inspirit AI Ambassador (Mar 2023 – Aug 2024). I classify sentiment with a regex.',
   ],
-  site: 'This site: static, terminal-style, accessible (WCAG 2.2 AA target), strict CSP, no trackers, built with an AI-assisted (agentic coding) workflow. A parody of an AI coding CLI, built with AI help: the irony is noted.',
+  site: 'This site: static, plain, accessible (WCAG 2.2 AA target), strict CSP, no trackers, built with an AI-assisted (agentic coding) workflow.',
   skills: (s) => [
     s.tool('Grep', '"skills" resume.txt'), s.result('Found 5 groups'),
     s.h('dl', { class: 'kv' }, [
-      ['Languages', 'C++, Java, Python, SQL, Kotlin, Bash/Shell, MIPS Assembly'],
-      ['Systems', 'Linux, Docker, Azure, Terraform'],
-      ['Tooling', 'Git/GitHub, GitHub Actions (CI/CD), automated unit and integration testing, debugging, CLI development, code review'],
-      ['AI & data', 'ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted development workflows'],
-      ['Spoken & signed', 'English (fluent), Japanese (fluent), American Sign Language'],
+      [R.string.skills_languages_label, R.string.skills_languages],
+      [R.string.skills_systems_label, R.string.skills_systems],
+      [R.string.skills_tooling_label, R.string.skills_tooling],
+      [R.string.skills_ai_label, R.string.skills_ai],
+      [R.string.skills_spoken_label, R.string.skills_spoken],
     ].map(([k, v]) => [s.h('dt', { text: k }), s.h('dd', { text: v })])),
   ],
-  obby: 'Mei’s Mini Obby: an obstacle course on a text grid, written in JavaScript; the course is a real Luau module, parsed at runtime. Play it: /obby (leaves the parody).',
+  obby: 'meiorz’s Mini Obby: an obstacle course on a text grid, written in JavaScript; the course is a real Luau module, parsed at runtime. Play it: /obby (leaves the CLI).',
   contact: (s) => [s.say('Email ', s.link(MAILTO, EMAIL), ' · GitHub ', s.link('https://github.com/meiorz', 'github.com/meiorz'),
     ' · LinkedIn ', s.link('https://www.linkedin.com/in/mei-o-525a0b227', 'linkedin.com/in/mei-o-525a0b227')), '/hire opens your email app.'],
-  hello: 'Hi! I’m Mei I?, a scripted parody of an agentic coding CLI. Ask about Mei, or try /help.',
-  compliment: 'Compliment accepted (see the mode indicator). I’d pass it on to Mei, but this page doesn’t store anything you type.',
+  hello: 'Hi! I’m meiorz-cli, a scripted command line. Ask about meiorz, or try /help.',
+  compliment: 'Compliment accepted (see the mode indicator). I’d pass it on to meiorz, but this page doesn’t store anything you type.',
   shell: 'I only do scripted answers, and I only rm one thing: node_modules. For real commands: /exit.',
   fallback: (s) => {
     const list = s.t('fallback');
@@ -208,12 +191,12 @@ const REPLIES = {
 };
 
 let uid = 0;
-const nextId = (what) => `meii-${what}-${++uid}`;
+const nextId = (what) => `cli-${what}-${++uid}`;
 
 /** Lowercase, Unicode-normalized, punctuation turned into spaces (keeps + and # for c++ and c#). */
 const normalize = (line) => String(line).toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}+#\s]/gu, ' ').replace(/\s+/g, ' ').trim();
 
-/** One visit to Mei I?, from start() to onExit(). */
+/** One visit to meiorz-cli, from start() to onExit(). */
 class Session {
   constructor(term) {
     this.term = term;
@@ -263,17 +246,17 @@ class Session {
   }
 
   say(...kids) {
-    return this.h('p', { class: 'meii-tool' }, this.hide('● '), ...kids);
+    return this.h('p', { class: 'cli-tool' }, this.hide('● '), ...kids);
   }
 
   tool(name, arg) {
-    return this.h('p', { class: 'meii-tool' }, this.h('span', { class: 'meii-dot', text: '● ', attrs: { 'aria-hidden': 'true' } }),
+    return this.h('p', { class: 'cli-tool' }, this.h('span', { class: 'cli-dot', text: '● ', attrs: { 'aria-hidden': 'true' } }),
       this.h('strong', { text: name }), arg && `(${arg})`);
   }
 
   /** "⎿ result": strings are lines; nodes (diff lines) go in as they are. */
   result(...parts) {
-    const div = this.h('div', { class: 'meii-result' }, this.hide('⎿  '));
+    const div = this.h('div', { class: 'cli-result' }, this.hide('⎿  '));
     parts.forEach((p, i) => div.append(typeof p === 'string' && i ? `\n   ${p}` : p));
     return div;
   }
@@ -281,13 +264,13 @@ class Session {
   /** Numbered +/- lines, in a <pre> that scrolls sideways on narrow screens. */
   diff(rows) {
     return this.h('pre', { attrs: { 'data-label': 'Diff' } }, rows.map(([sign, n, code]) => this.h('span',
-      { class: sign === '+' ? 'meii-diff-add' : 'meii-diff-del' },
+      { class: sign === '+' ? 'cli-diff-add' : 'cli-diff-del' },
       this.h('span', { class: 'visually-hidden', text: sign === '+' ? 'added: ' : 'removed: ' }), `${String(n).padStart(3)} ${sign} ${code}`)));
   }
 
   /** ☒/☐ list; with strike, done items are crossed out like a finished to-do. */
   todos(items, strike = false) {
-    return this.h('ul', { class: 'meii-todo' }, items.map(([text, done]) => this.h('li', { class: strike && done ? 'done' : null },
+    return this.h('ul', { class: 'cli-todo' }, items.map(([text, done]) => this.h('li', { class: strike && done ? 'done' : null },
       this.hide(done ? '☒ ' : '☐ '), text, this.h('span', { class: 'visually-hidden', text: done ? ' (done)' : ' (to do)' }))));
   }
 
@@ -295,7 +278,7 @@ class Session {
     return this.h('a', { attrs: { href }, text });
   }
 
-  /** A button that asks Mei I? something, as if typed. */
+  /** A button that asks meiorz-cli something, as if typed. */
   btn(text) {
     const b = this.h('button', { class: 'link-btn', text, attrs: { type: 'button' }, on: { click: (e) => this.ask(text, e) } });
     this.buttons.push(b);
@@ -324,24 +307,24 @@ class Session {
     const { h, term } = this;
     if (term.isStale && term.isStale()) return; // the visitor moved on while this loaded
     term.print(h('div', {},
-      h('div', { class: 'meii-box meii-welcome' },
-        h('p', {}, h('strong', {}, this.hide('✿ '), 'Welcome to Mei I?')),
-        h('p', { class: 'meii-dim', text: `${FOOTER}.` }),
-        h('p', { class: 'meii-dim', text: 'Type /help for commands · /exit to leave · cwd: ~/meiorz.tech' })),
-      h('p', { class: 'meii-dim' }, 'Try: ', this.join(WELCOME_TRY.map((q) => this.btn(q))))));
-    // The hint under the prompt: the disclaimer (its second half hides on
+      h('div', { class: 'cli-box cli-welcome' },
+        h('p', {}, h('strong', {}, this.hide('✿ '), 'Welcome to meiorz-cli')),
+        h('p', { class: 'cli-dim', text: `${FOOTER}.` }),
+        h('p', { class: 'cli-dim', text: 'Type /help for commands · /exit to leave · cwd: ~/meiorz.tech' })),
+      h('p', { class: 'cli-dim' }, 'Try: ', this.join(WELCOME_TRY.map((q) => this.btn(q))))));
+    // The hint under the prompt: the "scripted" note (its second half hides on
     // phones) and the mode indicator. Built before pushMode(), so term.js
     // measures the prompt at its real height.
-    this.modeEl = h('span', { class: 'meii-mode' });
-    this.footer = h('span', { class: 'meii-footer' },
-      h('span', {}, FOOTER_SHORT, h('span', { class: 'meii-footer__more', text: FOOTER_MORE })), this.modeEl);
+    this.modeEl = h('span', { class: 'cli-mode' });
+    this.footer = h('span', { class: 'cli-footer' },
+      h('span', {}, FOOTER_SHORT, h('span', { class: 'cli-footer__more', text: FOOTER_MORE })), this.modeEl);
     this.setMode(0, false);
     this.self = {
-      name: 'meii',
-      ps1: h('span', { class: 'meii-accent', text: '>' }),
-      placeholder: 'ask about Mei · /help · /exit',
+      name: 'meiorz-cli',
+      ps1: h('span', { class: 'cli-accent', text: '>' }),
+      placeholder: 'ask about meiorz · /help · /exit',
       hint: this.footer,
-      promptClass: 'meii-box',
+      promptClass: 'cli-box',
       echo: false, // handle() echoes, so clicked suggestions look like typed ones
       onSubmit: (line) => this.enqueue(line),
       onKeyDown: (e) => this.onKeyDown(e),
@@ -357,7 +340,7 @@ class Session {
     this.mode = i;
     const [glyph, label] = MODES[i];
     this.modeEl.replaceChildren(this.hide(`${glyph} `), label,
-      this.h('span', { class: 'meii-dim meii-keyhint', text: ' · shift+tab: next mode (twice: move back)' }));
+      this.h('span', { class: 'cli-dim cli-keyhint', text: ' · shift+tab: next mode (twice: move back)' }));
     if (update && !this.closed) this.term.setHint(this.footer); // re-measures the prompt
   }
 
@@ -396,7 +379,7 @@ class Session {
     if (this.openMenu) this.openMenu.cancel();
     for (const b of this.buttons) {
       b.disabled = true;
-      b.classList.add('meii-dim');
+      b.classList.add('cli-dim');
     }
     this.buttons = [];
     if (!this.quiet) this.reply(this.t('bye'), this.ja());
@@ -419,7 +402,7 @@ class Session {
       console.error(err);
       if (!this.closed) this.term.popMode(this.self);
       this.term.setPromptVisible(true);
-      this.term.print(`meii: something went wrong (${err && err.message}). Back to the shell.`).classList.add('out--error');
+      this.term.print(`meiorz-cli: something went wrong (${err && err.message}). Back to the shell.`).classList.add('out--error');
     });
   }
 
@@ -450,7 +433,7 @@ class Session {
   async handle(line, follow) {
     const raw = String(line ?? '').trim();
     if (this.closed || !raw) return undefined;
-    this.term.echo(raw).classList.add('meii-prompt');
+    this.term.echo(raw).classList.add('cli-prompt');
     if (follow) this.term.scrollToBottom(); // a click far up the log still shows its answer
     this.replies++;
     if (raw === '?' || raw.startsWith('/')) return this.slash(raw);
@@ -461,7 +444,7 @@ class Session {
     const verb = ultra ? ['Ultra-thinking', 'Ultra-thought'] : VERBS[(this.verbIx++ * 3) % VERBS.length]; // 3 is coprime with 10
     const ms = await this.think(verb, ultra ? THINK_MS[1] : null, ultra ? ' · still a switch statement' : '');
     if (ms == null) {
-      if (!this.closed) this.reply(this.h('p', { class: 'meii-result' }, this.hide('⎿  '), this.t('stop')), this.ja());
+      if (!this.closed) this.reply(this.h('p', { class: 'cli-result' }, this.hide('⎿  '), this.t('stop')), this.ja());
       return undefined;
     }
     if (key === 'rm') return this.rmFlow();
@@ -469,7 +452,7 @@ class Session {
     const entry = REPLIES[key];
     const r = typeof entry === 'function' ? entry(this, raw) : entry;
     const lang = r.lang || null;
-    const past = this.h('p', { class: 'meii-dim', attrs: { lang: lang && 'en' } }, this.hide('✿ '), `${verb[1]} for ${(ms / 1000).toFixed(1)}s`);
+    const past = this.h('p', { class: 'cli-dim', attrs: { lang: lang && 'en' } }, this.hide('✿ '), `${verb[1]} for ${(ms / 1000).toFixed(1)}s`);
     this.reply([].concat(r.lines || r, past), lang);
     return undefined;
   }
@@ -483,7 +466,7 @@ class Session {
         return this.reply([
           h('dl', { class: 'cmds' }, SLASH.map(([name, about]) => [h('dt', {}, this.btn(`/${name}`)), h('dd', {}, this.rich(about))])),
           h('p', {}, 'Or ask: ', this.join(TRY.map((q) => this.btn(q)))),
-          h('p', { class: 'hint meii-keys' }, 'Esc interrupts · Shift+Tab: next mode (cosmetic; press again to move focus back) · ↑/↓ history'),
+          h('p', { class: 'hint cli-keys' }, 'Esc interrupts · Shift+Tab: next mode (cosmetic; press again to move focus back) · ↑/↓ history'),
         ]);
       case 'resume':
       case 'skills':
@@ -505,7 +488,7 @@ class Session {
       case 'lang':
         return this.langFlow(arg);
       case 'obby':
-        this.reply('Leaving the parody for the obby. Type meii to come back.');
+        this.reply('Leaving for the obby. Type meiorz-cli to come back.');
         this.quiet = true;
         term.popMode(this.self);
         return term.run('obby');
@@ -531,8 +514,8 @@ class Session {
     const animate = !term.reducedMotion();
     const frameEl = h('span', { text: FRAMES[0] });
     const timeEl = h('span', { text: animate ? ' · 0s' : '' });
-    const out = term.print(h('p', { class: 'meii-spinner', attrs: { 'aria-hidden': 'true' } },
-      frameEl, ` ${verb[0]}… `, h('span', { class: 'meii-dim' }, `(${this.t('esc')}`, timeEl, `${note})`)));
+    const out = term.print(h('p', { class: 'cli-spinner', attrs: { 'aria-hidden': 'true' } },
+      frameEl, ` ${verb[0]}… `, h('span', { class: 'cli-dim' }, `(${this.t('esc')}`, timeEl, `${note})`)));
     term.status(`${verb[0]}… Press Escape to interrupt.`);
     const t0 = performance.now();
     return new Promise((resolve) => {
@@ -610,26 +593,26 @@ class Session {
       e.preventDefault();
     };
     const list = h('ol', {
-      class: 'meii-menu',
+      class: 'cli-menu',
       attrs: { role: 'listbox', tabindex: '0', 'aria-labelledby': ids[0], 'aria-describedby': `${ids[1]} ${ids[2]}` },
       on: { keydown: onKey },
     }, items);
     select(0);
     // Key help: hidden on phones and touch screens (CSS), still read as the listbox's description.
-    const keys = h('p', { class: 'meii-dim meii-keys', text: TEXT[lang].keys, attrs: { id: ids[2] } });
+    const keys = h('p', { class: 'cli-dim cli-keys', text: TEXT[lang].keys, attrs: { id: ids[2] } });
     const state = { cancel: () => finish(-1, '') };
     const finish = (i, how) => {
       if (this.openMenu !== state) return; // already answered
       this.openMenu = null;
       this.menuHow = how;
       // Keep a one-line record of the answer; the listbox itself goes away.
-      list.replaceWith(h('p', { class: 'meii-dim' }, i < 0 ? TEXT[lang].cancel : [this.hide('❯ '), `${i + 1}. ${options[i]}`]));
+      list.replaceWith(h('p', { class: 'cli-dim' }, i < 0 ? TEXT[lang].cancel : [this.hide('❯ '), `${i + 1}. ${options[i]}`]));
       keys.remove();
       resolve(i);
     };
-    term.print(h('div', { class: 'meii-box', attrs: { lang: lang === 'ja' ? 'ja' : null } },
-      h('p', { class: 'meii-accent' }, h('strong', { text: title })),
-      h('p', { attrs: { id: ids[1] } }, h('code', { text: command }), detail && [h('br'), h('span', { class: 'meii-dim', text: detail })]),
+    term.print(h('div', { class: 'cli-box', attrs: { lang: lang === 'ja' ? 'ja' : null } },
+      h('p', { class: 'cli-accent' }, h('strong', { text: title })),
+      h('p', { attrs: { id: ids[1] } }, h('code', { text: command }), detail && [h('br'), h('span', { class: 'cli-dim', text: detail })]),
       h('p', { attrs: { id: ids[0] } }, h('strong', { text: question })),
       list, keys));
     this.openMenu = state;
@@ -651,18 +634,16 @@ class Session {
     const i = await this.askMenu(this.t('rm'), 'rm -rf ./node_modules', 2);
     if (i === 0) {
       this.menuReply([this.result("rm: cannot remove './node_modules': No such file or directory"),
-        'Nothing to remove: this site has zero dependencies and no build step. Checked the real to-do list instead:', this.tool('Update Todos'),
-        this.todos([['CS 110C · C++ ADTs', 1], ['CS 111C · Java ADTs', 1], ['CS 270 · MIPS', 1],
-          ['IGETC + CS major preparation (in progress)', 0], ['Junior transfer: target Fall 2028', 0],
-          ['CCSF ASL certificate: AMSL 2B, expected Fall 2027', 0], ['Creator automation app + Android app (work in progress)', 0]], true)]);
+        'Nothing to remove: this site has zero dependencies. Checked the real to-do list instead:', this.tool('Update Todos'),
+        this.todos([['CS 110C · C++ ADTs', 1], ['CS 111C · Java ADTs', 1], ['CS 270 · MIPS', 1]], true)]);
     } else if (i > 0) {
-      this.menuReply(i === 1 ? this.result('Skipped: Mei I? can only see this page. Your other repos are safe.')
+      this.menuReply(i === 1 ? this.result('Skipped: meiorz-cli can only see this page. Your other repos are safe.')
         : 'Left as is. Nothing was deleted (nothing could be: this is a static site).');
     }
   }
 
   async hireFlow() {
-    this.reply('Mei is seeking Summer 2027 software engineering internships. Short pitch: Mei explains code every week as a CS tutor/TA (since Sep 2024), has completed data structures in both C++ and Java plus computer architecture, and directs BlobGuard, an open-source engineering project on cloud storage security with CI and automated tests, built with an AI-assisted (agentic coding) workflow. Full story: /resume.');
+    this.reply('Short pitch: meiorz explains code every week as a CS tutor/TA (since Sep 2024), has completed data structures in both C++ and Java plus computer architecture, and builds tested browser and editor extensions (Lull, HopOut). Full story: /resume.');
     const i = await this.askMenu(TEXT.en.hire, `mailto:${EMAIL}`, 2, 'en');
     const mail = () => this.link(MAILTO, EMAIL);
     if (i === 0) {
@@ -688,7 +669,7 @@ class Session {
   }
 }
 
-/** Entry point, called by term.js for `meii [question]`. */
+/** Entry point, called by term.js for `meiorz-cli [question]`. */
 export async function start(term, args = []) {
   new Session(term).open(args.join(' ').trim());
 }

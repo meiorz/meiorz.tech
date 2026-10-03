@@ -50,7 +50,7 @@ const FIXTURES = {
       '- [x] CS 270: Computer Architecture and Assembly (MIPS). Grade: A',
       'Core CS coursework (grade A): Data Structures and Algorithms in C++ (CS 110C)',
       'Coursework completed with grade A: CS 110C, CS 111C, CS 270.',
-      'Mei earned an A in both data structures courses and in computer architecture.',
+      'I earned an A in both data structures courses and in computer architecture.',
       'She got an A in CS 270.',
       'Straight A\'s in the CS core.',
     ],
@@ -92,7 +92,7 @@ const FIXTURES = {
       'Weekly hours: 8',
     ],
     allow: [
-      'Mei explains code every week as a CS tutor/TA (since Sep 2024).',
+      'I explain code every week as a CS tutor/TA (since Sep 2024).',
       'I created a discord server for comp sci classes that I ‘m taking this semester last week.',
       'Wait for the old TTL (2 hours) to expire.',
       'The maximum is 168 hours, which is seven days.',
