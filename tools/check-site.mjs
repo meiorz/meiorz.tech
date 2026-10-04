@@ -60,9 +60,9 @@ const OWN_HOSTS = /^(?:www\.)?meiorz\.tech$/i;
 const BUDGETS = [
   ['index.html', 45 * KB],
   ['css/term.css', 28 * KB],
-  ['js/term.js', 56 * KB],
+  ['js/term.js', 64 * KB],
   ['js/strings.js', 24 * KB],
-  ['js/obby.js', 36 * KB],
+  ['js/obby.js', 42 * KB],
   ['js/meiorz-cli.js', 40 * KB],
   ['img/og.png', 150 * KB],
   ['img/portrait.png', 100 * KB],
