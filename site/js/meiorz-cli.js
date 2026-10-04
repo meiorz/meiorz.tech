@@ -92,7 +92,7 @@ const RULES = [
   [/\b(data structures?|algorithms?|adts?|dsa)\b/, 'dsa'],
   [/\b(tutor\w*|teach\w*|ta|homework|assignment|do my)\b/, 'tutor'],
   [/\b(school|college|ccsf|educat\w*|degree|universit\w*|calculus|(az|ms|ai|dp) ?900|class(es)?|courses?|stud(y|ies|ent)|cert\w*)\b/, 'education'],
-  [/\b(projects?|portfolio|work(ed|ing) on|lull|hop ?out|extensions?|dark (mode|theme))\b/, 'projects'],
+  [/\b(projects?|portfolio|work(ed|ing) on|lull|hop ?out|material icons|obsidian|plugins?|extensions?|dark (mode|theme))\b/, 'projects'],
   [/\b(asl|sign( language)?|signing|interpret\w*|fingerspell\w*|translate|deaf)\b/, 'asl'],
   [/\bjapanese\b|日本語/, 'japanese'],
   [/\b(bert|sentiment|nlp|pytorch|ml|machine learning|inspirit)\b/, 'bert'],
@@ -158,6 +158,7 @@ const REPLIES = {
     s.tool('Bash', 'ls -l projects/'),
     s.say('Lull: a Chrome extension that gives every website a soft, predictable dark theme, with no white flash. ', s.link('https://github.com/meiorz/lull', 'github.com/meiorz/lull')),
     s.say('HopOut: a VS Code extension that hops the cursor out of the nearest quote, bracket or paren (MIT). ', s.link('https://github.com/meiorz/hopout', 'github.com/meiorz/hopout')),
+    s.say('Material Icons Inline: an Obsidian plugin that renders Google Material Icons from !icon[name] in notes, with the font bundled for offline use (MIT). ', s.link('https://github.com/meiorz/material-icons-obsidian', 'github.com/meiorz/material-icons-obsidian')),
     s.say('Tweet sentiment with BERT: Inspirit AI Scholar project from spring 2022 (Python, PyTorch), presented at Demo Day. More: ', s.btn('bert')),
   ],
   asl: 'I can’t sign; I don’t have hands. meiorz can: American Sign Language, limited to STEM communication, where a term without an established sign often gets fingerspelled: P-O-L-Y-M-O-R-P-H-I-S-M.',
@@ -643,7 +644,7 @@ class Session {
   }
 
   async hireFlow() {
-    this.reply('Short pitch: meiorz explains code every week as a CS tutor/TA (since Sep 2024), has completed data structures in both C++ and Java plus computer architecture, and builds tested browser and editor extensions (Lull, HopOut). Full story: /resume.');
+    this.reply('Short pitch: meiorz explains code every week as a CS tutor/TA (since Sep 2024), has completed data structures in both C++ and Java plus computer architecture, and builds tested browser and editor extensions (Lull, HopOut, Material Icons Inline). Full story: /resume.');
     const i = await this.askMenu(TEXT.en.hire, `mailto:${EMAIL}`, 2, 'en');
     const mail = () => this.link(MAILTO, EMAIL);
     if (i === 0) {

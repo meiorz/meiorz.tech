@@ -35,7 +35,7 @@
       "url": "https://www.meiorz.tech/",
       "email": "mailto:business@meiorz.tech",
       "jobTitle": "Computer Science Student",
-      "description": "Computer science student at City College of San Francisco, Inspirit AI Scholar, CS tutor, and builder of Lull, a Chrome extension, and HopOut, a VS Code extension.",
+      "description": "Computer science student at City College of San Francisco, Inspirit AI Scholar, CS tutor, and builder of Lull, a Chrome extension, HopOut, a VS Code extension, and Material Icons Inline, an Obsidian plugin.",
       "homeLocation": { "@type": "Place", "name": "San Francisco, CA" },
       "affiliation": { "@type": "CollegeOrUniversity", "name": "City College of San Francisco" },
       "knowsAbout": ["C++", "Java", "Python", "JavaScript", "TypeScript", "SQL", "Kotlin", "Bash/Shell", "MIPS Assembly", "Linux", "Docker", "Git/GitHub", "GitHub Actions (CI/CD)", "Automated unit and integration testing", "Debugging", "CLI development", "Code review", "ML fundamentals", "NLP", "Transformer models (Google BERT)", "LLM-assisted development workflows"],
@@ -71,7 +71,7 @@
       <p class="eyebrow">San Francisco, CA</p>
       <h1 id="h-intro" tabindex="-1"><span class="typed">Hello World!</span></h1>
       <p class="lede">I’m meiorz. I study computer science and linguistics, and I build small tools I want to use myself.</p>
-      <p><a href="#proj-lull">Lull</a> gives every website a calm dark theme. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code.</p>
+      <p><a href="#proj-lull">Lull</a> gives every website a calm dark theme. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</p>
       <p class="seeking">Seeking a software engineering internship for summer 2027.</p>
       <p class="actions">
         <a class="button button--primary" href="mailto:business@meiorz.tech">Email me</a>
@@ -110,6 +110,19 @@
           <li>Unit tests cover the scanner, and integration tests press real keys inside VS Code.</li>
         </ul>
         <p class="meta">TypeScript · VS Code extension · <a href="https://github.com/meiorz/hopout">github.com/meiorz/hopout</a></p>
+      </article>
+
+      <article class="project" id="proj-material-icons">
+        <h3>Material Icons Inline</h3>
+        <p>An Obsidian plugin that renders Google’s Material Icons inside notes: write <code>!icon[home]</code> and the icon appears in the text. It is listed in Obsidian’s community plugins. Open source (MIT).</p>
+        <ul>
+          <li>All 2,500+ icons, by the names shown on Google’s icon site.</li>
+          <li>Live Preview works like an image embed: the icon renders as you type, and the raw syntax comes back while the cursor is inside it. Built on CodeMirror 6 decorations.</li>
+          <li>Icons also render in reading view and in exported notes.</li>
+          <li>Works offline: the icon font is bundled with the plugin, so there are no network requests and no API key.</li>
+          <li>Icon size and color are settings, and any CSS length or color works.</li>
+        </ul>
+        <p class="meta">TypeScript · Obsidian plugin · <a href="https://community.obsidian.md/plugins/material-icons-inline">Obsidian community plugins</a> · <a href="https://github.com/meiorz/material-icons-obsidian">github.com/meiorz/material-icons-obsidian</a></p>
       </article>
 
       <article class="project" id="proj-bert-sentiment">

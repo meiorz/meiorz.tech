@@ -34,6 +34,11 @@ github.com/meiorz/hopout                                                Oct 2026
   takes Tab only when a hop is possible, so snippets and completions keep working.
 - Unit tests for the scanner; integration tests press real keys inside VS Code.
 
+Material Icons Inline -- Obsidian plugin: Google Material Icons in notes (TypeScript, MIT)
+github.com/meiorz/material-icons-obsidian                               Jun 2026 - Present
+- Renders !icon[name] in Live Preview (CodeMirror 6 decorations) and reading view;
+  published in Obsidian's community plugins. Icon font bundled, so it works offline.
+
 Tweet Sentiment Classification with BERT -- Inspirit AI Scholar project      Spring 2022
 - Fine-tuned Google BERT (Python, PyTorch) on a labeled tweet corpus, from preprocessing
   to evaluation, and presented the results and error analysis at Inspirit AI Demo Day.

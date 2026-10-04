@@ -8,6 +8,7 @@ Summary:
 
 - Lull: a Chrome extension (Manifest V3, JavaScript, no dependencies) that gives every website a soft, predictable dark theme, designed for autistic people and people with ADHD. No white flash, capped saturation (colors mapped in OKLCH), stopped animations, paused autoplay and frozen GIFs. No account, analytics, remote code or server. 138 checks run it in real Chrome.
 - HopOut: an MIT-licensed VS Code extension (TypeScript) that moves the cursor outside the nearest enclosing quote, bracket or paren, on `Tab` only where `Tab` has nothing better to do. Structure-aware scanning, multiple cursors, per-language pairs; unit tests plus integration tests that press real keys inside VS Code.
+- Material Icons Inline: an MIT-licensed Obsidian plugin (TypeScript), listed in Obsidian's community plugins, that renders Google Material Icons from `!icon[name]` in notes. Live Preview via CodeMirror 6 decorations, reading view, 2,500+ icons, font bundled so it works offline.
 - Coursework completed: CS 110C (Data Structures and Algorithms in C++), CS 111C (Data Structures and Algorithms in Java), CS 270 (Computer Architecture and Assembly, MIPS).
 - Experience: Computer Science Tutor / Teaching Assistant at City College of San Francisco since Sep 2024 (C++, Java, Python; one or two students a week); Inspirit AI Ambassador and AI Scholar alum, Mar 2023 to Aug 2024.
 - Skills: C++, Java, Python, JavaScript, TypeScript, SQL, Kotlin, Bash/Shell, MIPS Assembly; Linux, Docker; Git/GitHub, GitHub Actions (CI/CD), automated unit and integration testing, debugging, CLI development, code review; ML fundamentals, NLP, transformer models (Google BERT), LLM-assisted development workflows.
@@ -24,6 +25,7 @@ Summary:
 
 - [Lull](https://github.com/meiorz/lull): Chrome extension that gives every website a soft, predictable dark theme with no white flash; designed for autistic people and people with ADHD; no dependencies, no analytics, 138 checks in real Chrome
 - [HopOut](https://github.com/meiorz/hopout): MIT-licensed VS Code extension (TypeScript) that moves the cursor outside the nearest enclosing quote, bracket or paren; structure-aware, multi-cursor, yields to snippets and inline AI completions
+- [Material Icons Inline](https://github.com/meiorz/material-icons-obsidian): MIT-licensed Obsidian plugin (TypeScript) that renders Google Material Icons inline from `!icon[name]`; Live Preview and reading view, works offline; in Obsidian's community plugins at https://community.obsidian.md/plugins/material-icons-inline
 - [Tweet sentiment classification with BERT](https://www.meiorz.tech/#projects): Inspirit AI Scholar project, spring 2022 (Python, PyTorch); fine-tuned Google BERT on a labeled tweet corpus and presented the results and error analysis at Inspirit AI Demo Day
 
 ## Contact

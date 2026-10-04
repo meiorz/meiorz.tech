@@ -127,6 +127,7 @@ const OPEN_TARGETS = {
   archive: '/archive/',
   lull: 'https://github.com/meiorz/lull',
   hopout: 'https://github.com/meiorz/hopout',
+  icons: 'https://github.com/meiorz/material-icons-obsidian',
 };
 
 const THEMES = ['auto', 'dark', 'light']; // the toggle cycles in this order
@@ -561,6 +562,7 @@ const FS = dir({
     {
       'lull.md': proj('lull'),
       'hopout.md': proj('hopout'),
+      'material-icons.md': proj('material-icons'),
       'bert-sentiment.md': proj('bert-sentiment'),
     },
     { section: 'projects' },

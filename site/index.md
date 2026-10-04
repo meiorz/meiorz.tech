@@ -45,6 +45,22 @@ Repository: <https://github.com/meiorz/hopout>
 - Multiple cursors and per-language pairs.
 - Unit tests cover the scanner, and integration tests press real keys inside VS Code.
 
+### Material Icons Inline
+
+An Obsidian plugin that renders Google's Material Icons inside notes: write
+`!icon[home]` and the icon appears in the text. Listed in Obsidian's community plugins.
+Open source, MIT license. TypeScript.
+Repository: <https://github.com/meiorz/material-icons-obsidian>
+Obsidian: <https://community.obsidian.md/plugins/material-icons-inline>
+
+- All 2,500+ icons, by the names shown on Google's icon site.
+- Live Preview works like an image embed: the icon renders as you type, and the raw
+  syntax comes back while the cursor is inside it. Built on CodeMirror 6 decorations.
+- Icons also render in reading view and in exported notes.
+- Works offline: the icon font is bundled with the plugin, so there are no network
+  requests and no API key.
+- Icon size and color are settings, and any CSS length or color works.
+
 ### Tweet sentiment classification with BERT
 
 Inspirit AI Scholar project, spring 2022. Python, PyTorch.
