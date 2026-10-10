@@ -22,8 +22,8 @@ AI and Data:  ML fundamentals, NLP, transformer models (Google BERT), LLM-assist
 
 PROJECTS
 ------------------------------------------------------------------------------------------
-Lull -- Chrome extension: a calm dark theme for every website (JavaScript, Manifest V3)
-github.com/meiorz/lull                                                  Oct 2026 - Present
+Lull -- Chrome and Firefox extension: a calm dark theme for every website (JavaScript)
+github.com/meiorz/lull | listed on Firefox Add-ons                      Oct 2026 - Present
 - Designed for autistic people and people with ADHD: no white flash, no pure black or
   white, capped saturation (colors mapped in OKLCH), stopped animations, frozen GIFs.
 - No dependencies, build step, analytics or server; 138 checks run it in real Chrome.

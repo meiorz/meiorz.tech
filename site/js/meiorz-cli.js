@@ -156,7 +156,7 @@ const REPLIES = {
   ],
   projects: (s) => [
     s.tool('Bash', 'ls -l projects/'),
-    s.say('Lull: a Chrome extension that gives every website a soft, predictable dark theme, with no white flash. ', s.link('https://github.com/meiorz/lull', 'github.com/meiorz/lull')),
+    s.say('Lull: a Chrome and Firefox extension that gives every website a soft, predictable dark theme, with no white flash. ', s.link('https://addons.mozilla.org/en-US/firefox/addon/lull-calm-dark-mode/', 'Firefox Add-ons'), ' · ', s.link('https://github.com/meiorz/lull', 'github.com/meiorz/lull')),
     s.say('HopOut: a VS Code extension that hops the cursor out of the nearest quote, bracket or paren (MIT). ', s.link('https://github.com/meiorz/hopout', 'github.com/meiorz/hopout')),
     s.say('Material Icons Inline: an Obsidian plugin that renders Google Material Icons from !icon[name] in notes, with the font bundled for offline use (MIT). ', s.link('https://github.com/meiorz/material-icons-obsidian', 'github.com/meiorz/material-icons-obsidian')),
     s.say('Tweet sentiment with BERT: Inspirit AI Scholar project from spring 2022 (Python, PyTorch), presented at Demo Day. More: ', s.btn('bert')),

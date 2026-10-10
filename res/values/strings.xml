@@ -43,16 +43,16 @@
     <!-- Metadata -->
     <string name="meta_title">meiorz — CS student building small tools</string>
     <string name="meta_description">meiorz: CS student at City College of San Francisco and CS tutor, building browser and editor extensions.</string>
-    <string name="meta_og_description">CS student at City College of San Francisco and CS tutor. Builds Lull, a calm dark theme for Chrome, and HopOut, a tab-out extension for VS Code.</string>
+    <string name="meta_og_description">CS student at City College of San Francisco and CS tutor. Builds Lull, a calm dark theme for Chrome and Firefox, and HopOut, a tab-out extension for VS Code.</string>
     <string name="meta_og_image_alt">The name meiorz in large letters above the line: CS student, builds small tools, www.meiorz.tech.</string>
-    <string name="meta_person_description">Computer science student at City College of San Francisco, Inspirit AI Scholar, CS tutor, and builder of Lull, a Chrome extension, HopOut, a VS Code extension, and Material Icons Inline, an Obsidian plugin.</string>
+    <string name="meta_person_description">Computer science student at City College of San Francisco, Inspirit AI Scholar, CS tutor, and builder of Lull, a Chrome and Firefox extension, HopOut, a VS Code extension, and Material Icons Inline, an Obsidian plugin.</string>
     <string name="meta_job_title">Computer Science Student</string>
 
     <!-- Intro -->
     <string name="intro_eyebrow">San Francisco, CA</string>
     <string name="intro_headline">Hello World!</string>
     <string name="intro_lede">I’m meiorz. I study computer science and linguistics, and I build small tools I want to use myself.</string>
-    <string name="intro_projects"><a href="#proj-lull">Lull</a> gives every website a calm dark theme. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</string>
+    <string name="intro_projects"><a href="#proj-lull">Lull</a> gives every website a calm dark theme in Chrome and Firefox. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</string>
     <string name="intro_seeking">Seeking a software engineering internship for summer 2027.</string>
     <string name="intro_action_email">Email me</string>
     <string name="intro_action_resume">Read the résumé</string>
@@ -63,7 +63,7 @@
     <string name="projects_intro">What I’ve built, newest first.</string>
 
     <string name="project_lull_title">Lull</string>
-    <string name="project_lull_summary">A Chrome extension that gives every website a soft, predictable dark theme. I designed it for autistic people and people with ADHD: no white flashes, no pure black or pure white, no vivid color, and no movement you did not ask for.</string>
+    <string name="project_lull_summary">A Chrome and Firefox extension that gives every website a soft, predictable dark theme. I designed it for autistic people and people with ADHD: no white flashes, no pure black or pure white, no vivid color, and no movement you did not ask for. It is listed on Firefox Add-ons, for Firefox on desktop and Android.</string>
     <string-array name="project_lull_points">
         <item>No white flash: the page is dark before any script runs, and a test records every painted frame to check it.</item>
         <item>Colors are mapped in OKLCH. Backgrounds and text stay inside narrow bands and saturation is capped, so hue survives: a warning is still reddish and a link still bluish.</item>
@@ -72,7 +72,7 @@
         <item>No account, analytics, remote code or server. No dependencies and no build step.</item>
         <item>138 checks load the extension into real Chrome and look at what pages are like afterwards.</item>
     </string-array>
-    <string name="project_lull_meta">JavaScript · Chrome extension (Manifest V3) · <a href="https://github.com/meiorz/lull">github.com/meiorz/lull</a></string>
+    <string name="project_lull_meta">JavaScript · Chrome (Manifest V3) and Firefox extension · <a href="https://addons.mozilla.org/en-US/firefox/addon/lull-calm-dark-mode/">Firefox Add-ons</a> · <a href="https://github.com/meiorz/lull">github.com/meiorz/lull</a></string>
 
     <string name="project_hopout_title">HopOut</string>
     <string name="project_hopout_summary">A VS Code extension that moves the cursor outside the nearest enclosing quote, bracket or paren. It puts that on <kbd>Tab</kbd>, but only where <kbd>Tab</kbd> has nothing better to do. Open source (MIT).</string>
