@@ -63,7 +63,7 @@
     <string name="projects_intro">What I’ve built, newest first.</string>
 
     <string name="project_lull_title">Lull</string>
-    <string name="project_lull_summary">A Chrome and Firefox extension that gives every website a soft, predictable dark theme. I designed it for autistic people and people with ADHD: no white flashes, no pure black or pure white, no vivid color, and no movement you did not ask for. It is listed on Firefox Add-ons, for Firefox on desktop and Android.</string>
+    <string name="project_lull_summary">A Chrome and Firefox extension that gives every website a soft, predictable dark theme. I designed it for autistic people and people with ADHD: no white flashes, no pure black or pure white, no vivid color, and no movement you did not ask for. It is on the Chrome Web Store and on Firefox Add-ons, for Firefox on desktop and Android.</string>
     <string-array name="project_lull_points">
         <item>No white flash: the page is dark before any script runs, and a test records every painted frame to check it.</item>
         <item>Colors are mapped in OKLCH. Backgrounds and text stay inside narrow bands and saturation is capped, so hue survives: a warning is still reddish and a link still bluish.</item>
@@ -72,7 +72,7 @@
         <item>No account, analytics, remote code or server. No dependencies and no build step.</item>
         <item>138 checks load the extension into real Chrome and look at what pages are like afterwards.</item>
     </string-array>
-    <string name="project_lull_meta">JavaScript · Chrome (Manifest V3) and Firefox extension · <a href="https://addons.mozilla.org/en-US/firefox/addon/lull-calm-dark-mode/">Firefox Add-ons</a> · <a href="https://github.com/meiorz/lull">github.com/meiorz/lull</a></string>
+    <string name="project_lull_meta">JavaScript · Chrome (Manifest V3) and Firefox extension · <a href="https://chromewebstore.google.com/detail/dokoemojcedgkcaphljblbihfejlnbpg">Chrome Web Store</a> · <a href="https://addons.mozilla.org/en-US/firefox/addon/lull-calm-dark-mode/">Firefox Add-ons</a> · <a href="https://github.com/meiorz/lull">github.com/meiorz/lull</a></string>
 
     <string name="project_hopout_title">HopOut</string>
     <string name="project_hopout_summary">A VS Code extension that moves the cursor outside the nearest enclosing quote, bracket or paren. It puts that on <kbd>Tab</kbd>, but only where <kbd>Tab</kbd> has nothing better to do. Open source (MIT).</string>

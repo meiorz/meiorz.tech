@@ -15,9 +15,10 @@ with two programs, `obby` and `meiorz-cli` (see Play).
 
 A Chrome (Manifest V3) and Firefox extension that gives every website a soft, predictable
 dark theme. I designed it for autistic people and people with ADHD: no white flashes, no
-pure black or pure white, no vivid color, and no movement you did not ask for. Listed on
-Firefox Add-ons, for Firefox on desktop and Android.
+pure black or pure white, no vivid color, and no movement you did not ask for. On the Chrome
+Web Store and on Firefox Add-ons, for Firefox on desktop and Android.
 Repository: <https://github.com/meiorz/lull>
+Chrome Web Store: <https://chromewebstore.google.com/detail/dokoemojcedgkcaphljblbihfejlnbpg>
 Firefox Add-ons: <https://addons.mozilla.org/en-US/firefox/addon/lull-calm-dark-mode/>
 
 - No white flash: the page is dark before any script runs, and a test records every
