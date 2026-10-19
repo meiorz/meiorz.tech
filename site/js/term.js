@@ -125,6 +125,7 @@ const OPEN_TARGETS = {
   github: 'https://github.com/meiorz',
   linkedin: 'https://www.linkedin.com/in/mei-o-525a0b227',
   archive: '/archive/',
+  rowsmith: 'https://github.com/meiorz/rowsmith-mcp',
   lull: 'https://github.com/meiorz/lull',
   hopout: 'https://github.com/meiorz/hopout',
   icons: 'https://github.com/meiorz/material-icons-obsidian',
@@ -560,6 +561,7 @@ const FS = dir({
   obby: dir({ 'obbycourse.luau': { kind: 'fetch', url: '/obby/obbycourse.luau' } }),
   projects: dir(
     {
+      'rowsmith.md': proj('rowsmith'),
       'lull.md': proj('lull'),
       'hopout.md': proj('hopout'),
       'material-icons.md': proj('material-icons'),

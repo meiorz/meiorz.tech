@@ -52,7 +52,7 @@
     <string name="intro_eyebrow">San Francisco, CA</string>
     <string name="intro_headline">Hello World!</string>
     <string name="intro_lede">I’m meiorz. I study computer science and linguistics, and I build small tools I want to use myself.</string>
-    <string name="intro_projects"><a href="#proj-lull">Lull</a> gives every website a calm dark theme in Chrome and Firefox. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</string>
+    <string name="intro_projects"><a href="#proj-rowsmith">Rowsmith</a> generates reproducible fake test data from a table schema. <a href="#proj-lull">Lull</a> gives every website a calm dark theme in Chrome and Firefox. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</string>
     <string name="intro_seeking">Seeking a software engineering internship for summer 2027.</string>
     <string name="intro_action_email">Email me</string>
     <string name="intro_action_resume">Read the résumé</string>
@@ -61,6 +61,16 @@
     <!-- Projects -->
     <string name="projects_title">Projects</string>
     <string name="projects_intro">What I’ve built, newest first.</string>
+
+    <string name="project_rowsmith_title">Rowsmith</string>
+    <string name="project_rowsmith_summary">Rowsmith generates fake test data for software tests: CSV, JSON or SQL rows from a table schema, reproducible by seed. It is free, with no account and no key. The MCP server and pytest plugin are open source (MIT).</string>
+    <string-array name="project_rowsmith_points">
+        <item>Reproducible by seed: the same schema and seed give the same rows with the same generator version, so a failing test can run again with the same data.</item>
+        <item>An MCP server, the npm package <code>rowsmith-mcp</code>, lets coding agents generate test data.</item>
+        <item>Works with pytest through <code>pytest-rowsmith</code> on PyPI, with examples for Playwright, dbt and Postgres.</item>
+        <item>No real person’s data is used as input, and no record is derived from a real person.</item>
+    </string-array>
+    <string name="project_rowsmith_meta">JavaScript and Python · MCP server and pytest plugin · <a href="https://testdata-api.re-jam620.workers.dev">API and docs</a> · <a href="https://www.npmjs.com/package/rowsmith-mcp">npm</a> · <a href="https://github.com/meiorz/rowsmith-mcp">github.com/meiorz/rowsmith-mcp</a></string>
 
     <string name="project_lull_title">Lull</string>
     <string name="project_lull_summary">A Chrome and Firefox extension that gives every website a soft, predictable dark theme. I designed it for autistic people and people with ADHD: no white flashes, no pure black or pure white, no vivid color, and no movement you did not ask for. It is on the Chrome Web Store and on Firefox Add-ons, for Firefox on desktop and Android.</string>
@@ -208,8 +218,8 @@
     <string name="term_cmd_cat_more">Prints a file. Try cat skills.txt, cat projects/lull.md or cat obby/obbycourse.luau. Tab completes file names.</string>
     <string name="term_cmd_resume_about">print resume.txt</string>
     <string name="term_cmd_resume_more">Prints /resume.txt, the plain-text résumé. The same file is linked in the intro and the footer.</string>
-    <string name="term_cmd_open_about">open a link in a new tab (resume, github, linkedin, archive, lull, hopout, icons)</string>
-    <string name="term_cmd_open_more">Opens resume, github, linkedin, archive, lull, hopout or icons in a new tab. If your browser blocks the new tab, use the printed link.</string>
+    <string name="term_cmd_open_about">open a link in a new tab (resume, github, linkedin, archive, rowsmith, lull, hopout, icons)</string>
+    <string name="term_cmd_open_more">Opens resume, github, linkedin, archive, rowsmith, lull, hopout or icons in a new tab. If your browser blocks the new tab, use the printed link.</string>
     <string name="term_cmd_games_about">what you can play here</string>
     <string name="term_cmd_obby_about">tiny platformer: play Mini Obby</string>
     <string name="term_cmd_obby_more">A small obstacle course on a text grid. Luau-flavored, written in JavaScript: the course data is a real Luau module parsed at runtime (cat obby/obbycourse.luau). Keys: Left/Right or A/D move, Space/Up/W jump, R restart, Esc quit. Touch buttons are included.</string>
@@ -262,8 +272,8 @@
     <string name="term_img_pixel_pale_alt">One of my Minecraft icons: a pale gray pixel face.</string>
     <string name="term_img_pixel_ender_alt">One of my Minecraft icons: a black pixel face with glowing magenta eyes.</string>
     <string name="term_cat_no_operand">cat: missing file operand. Try: cat skills.txt</string>
-    <string name="term_open_unknown">open: unknown target '%1$s'. Try: open resume | github | linkedin | archive | lull | hopout | icons</string>
-    <string name="term_open_no_target">open: missing target. Try: open resume | github | linkedin | archive | lull | hopout | icons</string>
+    <string name="term_open_unknown">open: unknown target '%1$s'. Try: open resume | github | linkedin | archive | rowsmith | lull | hopout | icons</string>
+    <string name="term_open_no_target">open: missing target. Try: open resume | github | linkedin | archive | rowsmith | lull | hopout | icons</string>
     <string name="term_open_opening">Opening %1$s in a new tab: %2$s</string>
     <string name="term_history_empty">No history yet.</string>
     <string name="term_history_label">Command history</string>

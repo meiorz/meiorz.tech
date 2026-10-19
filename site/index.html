@@ -71,7 +71,7 @@
       <p class="eyebrow">San Francisco, CA</p>
       <h1 id="h-intro" tabindex="-1"><span class="typed">Hello World!</span></h1>
       <p class="lede">I’m meiorz. I study computer science and linguistics, and I build small tools I want to use myself.</p>
-      <p><a href="#proj-lull">Lull</a> gives every website a calm dark theme in Chrome and Firefox. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</p>
+      <p><a href="#proj-rowsmith">Rowsmith</a> generates reproducible fake test data from a table schema. <a href="#proj-lull">Lull</a> gives every website a calm dark theme in Chrome and Firefox. <a href="#proj-hopout">HopOut</a> gets the cursor out of quotes and brackets in VS Code. <a href="#proj-material-icons">Material Icons Inline</a> puts Google’s Material Icons into Obsidian notes.</p>
       <p class="seeking">Seeking a software engineering internship for summer 2027.</p>
       <p class="actions">
         <a class="button button--primary" href="mailto:business@meiorz.tech">Email me</a>
@@ -83,6 +83,18 @@
     <section id="projects" class="block" aria-labelledby="h-projects">
       <h2 id="h-projects" tabindex="-1">Projects</h2>
       <p>What I’ve built, newest first.</p>
+
+      <article class="project" id="proj-rowsmith">
+        <h3>Rowsmith</h3>
+        <p>Rowsmith generates fake test data for software tests: CSV, JSON or SQL rows from a table schema, reproducible by seed. It is free, with no account and no key. The MCP server and pytest plugin are open source (MIT).</p>
+        <ul>
+          <li>Reproducible by seed: the same schema and seed give the same rows with the same generator version, so a failing test can run again with the same data.</li>
+          <li>An MCP server, the npm package <code>rowsmith-mcp</code>, lets coding agents generate test data.</li>
+          <li>Works with pytest through <code>pytest-rowsmith</code> on PyPI, with examples for Playwright, dbt and Postgres.</li>
+          <li>No real person’s data is used as input, and no record is derived from a real person.</li>
+        </ul>
+        <p class="meta">JavaScript and Python · MCP server and pytest plugin · <a href="https://testdata-api.re-jam620.workers.dev">API and docs</a> · <a href="https://www.npmjs.com/package/rowsmith-mcp">npm</a> · <a href="https://github.com/meiorz/rowsmith-mcp">github.com/meiorz/rowsmith-mcp</a></p>
+      </article>
 
       <article class="project" id="proj-lull">
         <h3>Lull</h3>

@@ -11,6 +11,22 @@ with two programs, `obby` and `meiorz-cli` (see Play).
 
 ## Projects
 
+### Rowsmith
+
+Rowsmith generates fake test data for software tests: CSV, JSON or SQL rows from a table
+schema, reproducible by seed. Free, with no account and no key. The MCP server and pytest
+plugin are open source, MIT license. JavaScript and Python.
+API and docs: <https://testdata-api.re-jam620.workers.dev>
+Repository: <https://github.com/meiorz/rowsmith-mcp>
+npm: <https://www.npmjs.com/package/rowsmith-mcp>
+
+- Reproducible by seed: the same schema and seed give the same rows with the same
+  generator version, so a failing test can run again with the same data.
+- An MCP server, the npm package `rowsmith-mcp`, lets coding agents generate test data.
+- Works with pytest through `pytest-rowsmith` on PyPI, with examples for Playwright, dbt
+  and Postgres.
+- No real person's data is used as input, and no record is derived from a real person.
+
 ### Lull
 
 A Chrome (Manifest V3) and Firefox extension that gives every website a soft, predictable

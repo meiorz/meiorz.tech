@@ -22,6 +22,12 @@ AI and Data:  ML fundamentals, NLP, transformer models (Google BERT), LLM-assist
 
 PROJECTS
 ------------------------------------------------------------------------------------------
+Rowsmith -- fake test data (CSV, JSON, SQL) from a table schema (JavaScript, Python, MIT)
+github.com/meiorz/rowsmith-mcp | npm: rowsmith-mcp                      Oct 2026 - Present
+- Reproducible by seed; free, with no account or key. An MCP server lets coding agents
+  use it; pytest plugin on PyPI, plus Playwright, dbt and Postgres examples.
+- No real person's data is used as input, and no record is derived from a real person.
+
 Lull -- Chrome and Firefox extension: a calm dark theme for every website (JavaScript)
 github.com/meiorz/lull | Chrome Web Store, Firefox Add-ons              Oct 2026 - Present
 - Designed for autistic people and people with ADHD: no white flash, no pure black or

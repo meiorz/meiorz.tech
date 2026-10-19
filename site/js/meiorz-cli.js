@@ -92,7 +92,7 @@ const RULES = [
   [/\b(data structures?|algorithms?|adts?|dsa)\b/, 'dsa'],
   [/\b(tutor\w*|teach\w*|ta|homework|assignment|do my)\b/, 'tutor'],
   [/\b(school|college|ccsf|educat\w*|degree|universit\w*|calculus|(az|ms|ai|dp) ?900|class(es)?|courses?|stud(y|ies|ent)|cert\w*)\b/, 'education'],
-  [/\b(projects?|portfolio|work(ed|ing) on|lull|hop ?out|material icons|obsidian|plugins?|extensions?|dark (mode|theme))\b/, 'projects'],
+  [/\b(projects?|portfolio|work(ed|ing) on|rowsmith|test data|mcp|lull|hop ?out|material icons|obsidian|plugins?|extensions?|dark (mode|theme))\b/, 'projects'],
   [/\b(asl|sign( language)?|signing|interpret\w*|fingerspell\w*|translate|deaf)\b/, 'asl'],
   [/\bjapanese\b|日本語/, 'japanese'],
   [/\b(bert|sentiment|nlp|pytorch|ml|machine learning|inspirit)\b/, 'bert'],
@@ -156,6 +156,7 @@ const REPLIES = {
   ],
   projects: (s) => [
     s.tool('Bash', 'ls -l projects/'),
+    s.say('Rowsmith: fake test data (CSV, JSON or SQL) from a table schema, reproducible by seed. Free, no key; an MCP server lets coding agents use it. ', s.link('https://testdata-api.re-jam620.workers.dev', 'API and docs'), ' · ', s.link('https://github.com/meiorz/rowsmith-mcp', 'github.com/meiorz/rowsmith-mcp')),
     s.say('Lull: a Chrome and Firefox extension that gives every website a soft, predictable dark theme, with no white flash. ', s.link('https://chromewebstore.google.com/detail/dokoemojcedgkcaphljblbihfejlnbpg', 'Chrome Web Store'), ' · ', s.link('https://addons.mozilla.org/en-US/firefox/addon/lull-calm-dark-mode/', 'Firefox Add-ons'), ' · ', s.link('https://github.com/meiorz/lull', 'github.com/meiorz/lull')),
     s.say('HopOut: a VS Code extension that hops the cursor out of the nearest quote, bracket or paren (MIT). ', s.link('https://github.com/meiorz/hopout', 'github.com/meiorz/hopout')),
     s.say('Material Icons Inline: an Obsidian plugin that renders Google Material Icons from !icon[name] in notes, with the font bundled for offline use (MIT). ', s.link('https://github.com/meiorz/material-icons-obsidian', 'github.com/meiorz/material-icons-obsidian')),
